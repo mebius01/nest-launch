@@ -1,9 +1,5 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  Optional,
-} from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
+import { DBErrorException } from 'src/services/exceptions/exceptions';
 
 @Injectable()
 export class AuthDal {
@@ -13,7 +9,7 @@ export class AuthDal {
     try {
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('DB Error');
+      throw new DBErrorException();
     }
   }
 }

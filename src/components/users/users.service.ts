@@ -8,6 +8,8 @@ export class UsersService {
 
   async list() {
     try {
+      const data = await this.dal.list();
+      return data;
     } catch (error) {
       throw error;
     }

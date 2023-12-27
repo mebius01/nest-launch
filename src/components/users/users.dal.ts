@@ -4,6 +4,7 @@ import {
   Logger,
   Optional,
 } from '@nestjs/common';
+import { DBErrorException } from 'src/services/exceptions/exceptions';
 
 @Injectable()
 export class UsersDal {
@@ -15,7 +16,7 @@ export class UsersDal {
     try {
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('DB Error');
+      throw new DBErrorException();
     }
   }
 
@@ -23,7 +24,7 @@ export class UsersDal {
     try {
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('DB Error');
+      throw new DBErrorException();
     }
   }
 
@@ -31,7 +32,7 @@ export class UsersDal {
     try {
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('DB Error');
+      throw new DBErrorException();
     }
   }
 
@@ -39,7 +40,7 @@ export class UsersDal {
     try {
     } catch (error) {
       this.logger.error(error);
-      throw new BadRequestException('DB Error');
+      throw new DBErrorException();
     }
   }
 }
