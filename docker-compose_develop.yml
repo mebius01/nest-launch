@@ -1,30 +1,32 @@
 version: '3.8'
 services:
 
-  pg:
+  pg-nest-launch:
     image: postgres:15.2-alpine
+    container_name: pg_nest_launch
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - ${POSTGRES_PORT}:5432
     volumes:
-      - pg:/var/lib/postgresql/data
+      - pg-nest-launch:/var/lib/postgresql/data
 
-  redis:
+  redis-nest-launch:
     image: redis:latest
+    container_name: redis_nest_launch
     restart: always
     command: >
       --requirepass ${REDIS_PASSWORD}
     ports:
       - ${REDIS_PORT}:${REDIS_PORT}
     volumes:
-      - redis:/redis/data
+      - redis-nest-launch:/redis/data
 
 volumes:
-  pg:
+  pg-nest-launch:
     driver: local
-  redis:
+  redis-nest-launch:
     driver: local
