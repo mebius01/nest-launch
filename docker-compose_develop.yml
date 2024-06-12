@@ -5,12 +5,13 @@ services:
     image: postgres:15.2-alpine
     container_name: pg_nest_launch
     restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    environment: 
+      PG_HOST: ${PG_HOST}
+      PG_DATABASE: ${PG_DATABASE}
+      PG_USER: ${PG_USER}
+      PG_PASSWORD: ${PG_PASSWORD}
     ports:
-      - ${POSTGRES_PORT}:5432
+      - ${PG_PORT}:5432
     volumes:
       - pg-nest-launch:/var/lib/postgresql/data
 

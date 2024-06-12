@@ -4,7 +4,7 @@ import {
   Logger,
   Optional,
 } from '@nestjs/common';
-import { DBErrorException } from 'src/services/exceptions/exceptions';
+import { DBErrorException } from '../../services/exceptions/exceptions';
 
 @Injectable()
 export class UsersDal {
