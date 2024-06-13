@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  Optional,
-} from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { DBErrorException } from '../../services/exceptions/exceptions';
 
 @Injectable()

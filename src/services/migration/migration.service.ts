@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DBService } from '../database/database.service';
+import { DBConnection } from '../database/database.service';
 import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import * as dayjs from 'dayjs';
@@ -8,7 +8,7 @@ import * as chalk from 'chalk';
 @Injectable()
 export class MigrationService {
   constructor(
-    private readonly dbService: DBService,
+    private readonly DBConnection: DBConnection,
     private readonly migrationsDir: string,
   ) {}
 
@@ -17,7 +17,7 @@ export class MigrationService {
    * @return {Promise<void>} A Promise that resolves when the table is created.
    */
   private async createMigrationsTable(): Promise<void> {
-    const client = this.dbService.getClient();
+    const client = this.DBConnection.getClient();
     await client.query(`
       CREATE TABLE IF NOT EXISTS migrations (
         id SERIAL PRIMARY KEY,
@@ -32,7 +32,7 @@ export class MigrationService {
    * @return {Promise<string[]>} an array of strings representing executed migration names
    */
   private async getExecutedMigrations(): Promise<string[]> {
-    const client = this.dbService.getClient();
+    const client = this.DBConnection.getClient();
     const res = await client.query('SELECT name FROM migrations');
     return res.rows.map((row) => row.name);
   }
@@ -43,7 +43,7 @@ export class MigrationService {
    * @return {Promise<void>} - A promise that resolves when the migration is successfully logged.
    */
   private async logMigration(name: string): Promise<void> {
-    const client = this.dbService.getClient();
+    const client = this.DBConnection.getClient();
     await client.query('INSERT INTO migrations (name) VALUES ($1)', [name]);
   }
 
@@ -53,7 +53,7 @@ export class MigrationService {
    * @return {Promise<void>} - A promise that resolves when the migration is successfully unlogged.
    */
   private async unlogMigration(name: string): Promise<void> {
-    const client = this.dbService.getClient();
+    const client = this.DBConnection.getClient();
     await client.query('DELETE FROM migrations WHERE name = $1', [name]);
   }
 
@@ -94,12 +94,12 @@ export const down = async (client: Client) => {
       }
     }
 
-    await this.dbService.disconnect();
+    await this.DBConnection.disconnect();
   }
 
   async up(migrationName?: string): Promise<void> {
-    // await this.dbService.connect();
-    const client = this.dbService.getClient();
+    // await this.DBConnection.connect();
+    const client = this.DBConnection.getClient();
     await this.createMigrationsTable();
 
     const executedMigrations = await this.getExecutedMigrations();
@@ -117,12 +117,12 @@ export const down = async (client: Client) => {
       console.log(`Migration ${file} executed`);
     }
 
-    await this.dbService.disconnect();
+    await this.DBConnection.disconnect();
   }
 
   async down(migrationName?: string): Promise<void> {
-    // await this.dbService.connect();
-    const client = this.dbService.getClient();
+    // await this.DBConnection.connect();
+    const client = this.DBConnection.getClient();
     await this.createMigrationsTable();
 
     const executedMigrations = await this.getExecutedMigrations();
@@ -140,12 +140,12 @@ export const down = async (client: Client) => {
       console.log(`Migration ${file} rolled back`);
     }
 
-    await this.dbService.disconnect();
+    await this.DBConnection.disconnect();
   }
 
   async rollback(): Promise<void> {
-    // await this.dbService.connect();
-    const client = this.dbService.getClient();
+    // await this.DBConnection.connect();
+    const client = this.DBConnection.getClient();
     await this.createMigrationsTable();
 
     const executedMigrations = await this.getExecutedMigrations();
@@ -157,6 +157,6 @@ export const down = async (client: Client) => {
       console.log(`Migration ${file} rolled back`);
     }
 
-    await this.dbService.disconnect();
+    await this.DBConnection.disconnect();
   }
 }
