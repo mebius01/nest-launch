@@ -6,6 +6,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { DBConnection } from './services/database/database.service';
 import { MigrationService } from './services/migration/migration.service';
 import { join } from 'path';
+import { DatabaseModule } from './services/database/database.module';
 
 @Module({
   imports: [
@@ -16,10 +17,10 @@ import { join } from 'path';
     }),
     LoggerModule.forRoot({ ...configuration().pino }),
     UsersModule,
+    DatabaseModule,
   ],
   controllers: [],
   providers: [
-    DBConnection,
     {
       provide: MigrationService,
       useFactory: (DBConnection: DBConnection) => {
