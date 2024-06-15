@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { DBConnection } from '../database/database.service';
+import { DBConnection } from './connection';
 import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import * as dayjs from 'dayjs';
 import * as chalk from 'chalk';
 
 @Injectable()
-export class MigrationService {
+export class DBMigration {
   constructor(
     private readonly DBConnection: DBConnection,
     private readonly migrationsDir: string,

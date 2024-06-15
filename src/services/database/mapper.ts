@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DBConnection } from './database.service';  // Відповідний шлях до вашого модуля
+import { DBConnection } from './connection';  // Відповідний шлях до вашого модуля
 import { Logger } from 'nestjs-pino';
 import { DBErrorException } from '../exceptions/exceptions';
 
@@ -56,18 +56,26 @@ export class DBMapper {
     try {
       const keys = Object.keys(data);
       const values = keys.map(key => data[key]);
+      const filterKeys = Object.keys(filter);
+      const filterValues = filterKeys.map(key => filter[key]);
+
+      const setClauses = keys.map((key, i) => `${key} = $${i + 1}`).join(', ');
+      const whereClauses = filterKeys.map((key, i) => `${key} = $${keys.length + i + 1}`).join(' AND ');
+
       const query = `
         UPDATE ${tableName}
-        SET ${keys.map((key, i) => `${key} = $${i + 1}`).join(', ')}
-        WHERE ${Object.keys(filter).map((key, i) => `${key} = $${i + 1}`).join(' AND ')}
+        SET ${setClauses}
+        WHERE ${whereClauses}
         RETURNING *`;
-      const res = await client.query(query, [...values, ...Object.values(filter)]);
+
+      const res = await client.query(query, [...values, ...filterValues]);
       return res.rows[0];
     } catch (error) {
       this.log.error(error);
       throw new DBErrorException();
     }
   }
+
 
   /**
    * Deletes records from a table based on a filter condition.
@@ -82,10 +90,15 @@ export class DBMapper {
     try {
       const keys = Object.keys(filter);
       const values = keys.map(key => filter[key]);
+      const whereClause = keys.length
+        ? `WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}`
+        : '';
+
       const query = `
         DELETE FROM ${tableName}
-        ${keys.length ? `WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}` : ''}
+        ${whereClause}
         RETURNING *`;
+
       const res = await client.query(query, values);
       return res.rows;
     } catch (error) {
@@ -93,6 +106,7 @@ export class DBMapper {
       throw new DBErrorException();
     }
   }
+
 
   /**
    * Retrieves data from the database table based on the provided filter.
@@ -106,10 +120,15 @@ export class DBMapper {
     try {
       const keys = Object.keys(filter);
       const values = keys.map(key => filter[key]);
+      const whereClause = keys.length
+        ? `WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}`
+        : '';
+
       const query = `
         SELECT * FROM ${tableName}
-        WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}`; 
-      
+        ${whereClause}
+        LIMIT 1`; // Додаємо LIMIT 1 для обмеження результатів до одного рядка
+
       const res = await client.query(query, values);
       return res.rows[0];
     } catch (error) {
@@ -118,6 +137,7 @@ export class DBMapper {
     }
   }
 
+
   /**
    * Retrieves a list of data from the database table based on the provided filter.
    *
@@ -125,15 +145,20 @@ export class DBMapper {
    * @param {any} [filter={}] - The filter criteria to apply when fetching data.
    * @return {Promise<T[]>} A promise that resolves with the list of retrieved data.
    */
-  async list<T>(tableName: string, filter: any = {}): Promise<T[]> {
+  async list<T>(tableName: string, filter: Record<string, any> = {}): Promise<T[]> {
+    if (this.isEmpty(filter)) throw new Error('Filter cannot be empty');
     const client = this.dbConnection.getClient();
     try {
       const keys = Object.keys(filter);
       const values = keys.map(key => filter[key]);
+      const whereClause = keys.length
+        ? `WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}`
+        : '';
+
       const query = `
         SELECT * FROM ${tableName}
-        ${keys.length ? `WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}` : ''}`;
-      
+        ${whereClause}`;
+
       const res = await client.query(query, values);
       return res.rows;
     } catch (error) {
@@ -142,22 +167,48 @@ export class DBMapper {
     }
   }
 
-  async count(tableName: string, filter: any = {}): Promise<number> {
+  async raw<T>(query: string, params: Record<string, any> = {}): Promise<T[]> {
     const client = this.dbConnection.getClient();
     try {
-      const keys = Object.keys(filter);
-      const values = keys.map(key => filter[key]);
-      const query = `
-        SELECT COUNT(*) FROM ${tableName}
-        ${keys.length ? `WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}` : ''}`;
-      
-      const res = await client.query(query, values);
-      return res.rows[0].count;
+      const keys = Object.keys(params);
+      const values = keys.map(key => params[key]);
+      const parameterizedQuery = query.replace(/:([a-zA-Z0-9_]+)/g, (match, p1) => {
+        const index = keys.indexOf(p1);
+        if (index !== -1) {
+          return `$${index + 1}`;
+        }
+        return match;
+      });
+
+      const res = await client.query(parameterizedQuery, values);
+      return res.rows;
     } catch (error) {
       this.log.error(error);
       throw new DBErrorException();
     }
   }
+
+  async count(tableName: string, filter: Record<string, any> = {}): Promise<number> {
+    const client = this.dbConnection.getClient();
+    try {
+      const keys = Object.keys(filter);
+      const values = keys.map(key => filter[key]);
+      const whereClause = keys.length
+        ? `WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}`
+        : '';
+
+      const query = `
+        SELECT COUNT(*) FROM ${tableName}
+        ${whereClause}`;
+
+      const res = await client.query(query, values);
+      return parseInt(res.rows[0].count, 10); // Перетворення результату на число
+    } catch (error) {
+      this.log.error(error);
+      throw new DBErrorException();
+    }
+  }
+
 
 }
 

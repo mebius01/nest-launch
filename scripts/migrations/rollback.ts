@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../../src/app.module';
-import { MigrationService } from '../../src/services/migration/migration.service';
+import { DBMigration } from '../../src/services/database/migration';
 
 (async function bootstrap() {
   try {
     const app = await NestFactory.createApplicationContext(AppModule);
-    const migrationService = app.get(MigrationService);
-    await migrationService.rollback();
+    const DBMigration = app.get(DBMigration);
+    await DBMigration.rollback();
     await app.close();
   } catch (error) {
     console.error(error);

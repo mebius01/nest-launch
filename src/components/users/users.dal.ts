@@ -2,7 +2,7 @@ import { Injectable, Logger, Optional } from '@nestjs/common';
 import { DBErrorException } from '../../services/exceptions/exceptions';
 import { TUser } from './users.type';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
-import { DBMapper } from 'src/services/database/database.mapper';
+import { DBMapper } from 'src/services/database/mapper';
 
 @Injectable()
 export class UsersDal {

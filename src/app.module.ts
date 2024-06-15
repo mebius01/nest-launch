@@ -3,8 +3,8 @@ import { UsersModule } from './components/users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './configuration/main.config';
 import { LoggerModule } from 'nestjs-pino';
-import { DBConnection } from './services/database/database.service';
-import { MigrationService } from './services/migration/migration.service';
+import { DBConnection } from './services/database/connection';
+import { DBMigration } from './services/database/migration';
 import { join } from 'path';
 import { DatabaseModule } from './services/database/database.module';
 
@@ -22,10 +22,10 @@ import { DatabaseModule } from './services/database/database.module';
   controllers: [],
   providers: [
     {
-      provide: MigrationService,
+      provide: DBMigration,
       useFactory: (DBConnection: DBConnection) => {
         const migrationsDir = join(__dirname, 'database', 'migrations');
-        return new MigrationService(DBConnection, migrationsDir);
+        return new DBMigration(DBConnection, migrationsDir);
       },
       inject: [DBConnection],
     },

@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
-import { DBConnection } from './database.service';
-import { DBMapper } from './database.mapper';
+import { DBConnection } from './connection';
+import { DBMapper } from './mapper';
 
 @Global()
 @Module({
