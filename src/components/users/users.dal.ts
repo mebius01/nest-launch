@@ -2,8 +2,8 @@ import { Injectable, Logger, Optional } from '@nestjs/common';
 import { DBErrorException } from '../../services/exceptions/exceptions';
 import { TUser } from './users.type';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
-import { DBMapper } from 'src/services/database/mapper';
-import { ETables } from 'src/services/database/enums';
+import { DBMapper } from '../../services/database/mapper';
+import { ETables } from '../../services/database/enums';
 
 @Injectable()
 export class UsersDal {
@@ -13,6 +13,7 @@ export class UsersDal {
   ) { }
   
   async create(payload: CreateUserDto) {
+    await this.mapper.transaction();
     try {
       const [data] = await this.mapper.create<CreateUserDto, TUser>(ETables.Users, payload);
       return data

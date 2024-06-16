@@ -18,7 +18,7 @@ export class DBMigration {
    * @return {Promise<void>} A Promise that resolves when the table is created.
    */
   private async createMigrationsTable(): Promise<void> {
-    const client = this.connection.getClient();
+    const client = this.connection.getClient;
     await client.query(`
       CREATE TABLE IF NOT EXISTS migrations (
         id SERIAL PRIMARY KEY,
@@ -33,7 +33,7 @@ export class DBMigration {
    * @return {Promise<string[]>} an array of strings representing executed migration names
    */
   private async getExecutedMigrations(): Promise<string[]> {
-    const client = this.connection.getClient();
+    const client = this.connection.getClient;
     const res = await client.query('SELECT name FROM migrations');
     return res.rows.map((row) => row.name);
   }
@@ -44,7 +44,7 @@ export class DBMigration {
    * @return {Promise<void>} - A promise that resolves when the migration is successfully logged.
    */
   private async logMigration(name: string): Promise<void> {
-    const client = this.connection.getClient();
+    const client = this.connection.getClient;
     await client.query('INSERT INTO migrations (name) VALUES ($1)', [name]);
   }
 
@@ -54,7 +54,7 @@ export class DBMigration {
    * @return {Promise<void>} - A promise that resolves when the migration is successfully unlogged.
    */
   private async unlogMigration(name: string): Promise<void> {
-    const client = this.connection.getClient();
+    const client = this.connection.getClient;
     await client.query('DELETE FROM migrations WHERE name = $1', [name]);
   }
 
@@ -100,7 +100,7 @@ export const down = async (client: Client) => {
 
   async up(migrationName?: string): Promise<void> {
     // await this.connection.connect();
-    const client = this.connection.getClient();
+    const client = this.connection.getClient;
     await this.createMigrationsTable();
 
     const executedMigrations = await this.getExecutedMigrations();
@@ -123,7 +123,7 @@ export const down = async (client: Client) => {
 
   async down(migrationName?: string): Promise<void> {
     // await this.connection.connect();
-    const client = this.connection.getClient();
+    const client = this.connection.getClient;
     await this.createMigrationsTable();
 
     const executedMigrations = await this.getExecutedMigrations();
@@ -146,7 +146,7 @@ export const down = async (client: Client) => {
 
   async rollback(): Promise<void> {
     // await this.connection.connect();
-    const client = this.connection.getClient();
+    const client = this.connection.getClient;
     await this.createMigrationsTable();
 
     const executedMigrations = await this.getExecutedMigrations();
