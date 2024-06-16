@@ -13,18 +13,17 @@ export class UsersDal {
   ) { }
   
   async create(payload: CreateUserDto) {
-    const trx = await this.mapper.transaction()
-    console.log('[34musers.dal.ts:[33m17[35m(trx)[37m', trx);
-    try {
-      const [user] = await trx.create<CreateUserDto, TUser>(ETables.Users, payload);
-      console.log('[34musers.dal.ts:[33m19[35m(user)[37m', user);
-      const [project] = await trx.create(ETables.Projects, {name: 'Test Project name'});
-      console.log('[34musers.dal.ts:[33m21[35m(project)[37m', project);
-      // await trx.commit()
-    } catch (error) {
-      // await trx.rollback()
-      throw error
-    }
+    // const trx = await this.mapper.transaction()
+    // try {
+    //   const [user] = await trx.create<CreateUserDto, TUser>(ETables.Users, payload);
+    //   console.log('[34musers.dal.ts:[33m19[35m(user)[37m', user);
+    //   const [project] = await trx.create(ETables.Projects, {name: 'Test Project name'});
+    //   console.log('[34musers.dal.ts:[33m21[35m(project)[37m', project);
+    //   // await trx.commit()
+    // } catch (error) {
+    //   await trx.rollback()
+    //   throw error
+    // }
   }
 
   async list() {

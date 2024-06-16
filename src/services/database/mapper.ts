@@ -1,18 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { DBConnection } from './connection';  // Відповідний шлях до вашого модуля
+import { DBConnection } from './connection';
 import { Logger } from 'nestjs-pino';
 import { DBErrorException } from '../exceptions/exceptions';
 import { ETables } from './enums';
 
 export abstract class BaseDBMapper {
-  protected dbConnection: DBConnection;
+  protected connection: DBConnection;
   protected log: Logger;
 
-  constructor(dbConnection: DBConnection, log: Logger) {
-    this.dbConnection = dbConnection;
+  constructor(connection: DBConnection, log: Logger) {
+    this.connection = connection;
     this.log = log;
   }
   
+  /**
+   * Checks if the given data is empty.
+   *
+   * @param {any} data - The data to check for emptiness.
+   * @return {boolean} Returns true if the data is empty, false otherwise.
+   */
   private isEmpty(data: any): boolean {
     if (Array.isArray(data)) {
       return data.length === 0;
@@ -32,7 +38,7 @@ export abstract class BaseDBMapper {
   async create<T, R>(tableName: ETables, data: T | T[]): Promise<R[]> {
     if (this.isEmpty(data)) throw new Error('Cannot insert empty data');
 
-    const client = await this.dbConnection.getClient();
+    const client = await this.connection.getClient;
     try {
       const keys = Object.keys(data[0] || data);
       const valuesArray = Array.isArray(data) ? data : [data];
@@ -64,7 +70,7 @@ export abstract class BaseDBMapper {
    * @throws {DBErrorException} If an error occurs while updating the row(s).
    */
   async update<T, R>(tableName: ETables, filter: any = {}, data: T): Promise<R[]> {
-    const client = this.dbConnection.getClient();
+    const client = this.connection.getClient;
     try {
       const keys = Object.keys(data);
       const values = keys.map(key => data[key]);
@@ -97,7 +103,7 @@ export abstract class BaseDBMapper {
    * @throws {DBErrorException} - If there is an error executing the database query.
    */
   async delete<T>(tableName: ETables, filter: any = {}): Promise<T[]> {
-    const client = this.dbConnection.getClient();
+    const client = this.connection.getClient;
     try {
       const keys = Object.keys(filter);
       const values = keys.map(key => filter[key]);
@@ -126,7 +132,7 @@ export abstract class BaseDBMapper {
    * @return {Promise<T>} A promise that resolves with the retrieved data.
    */
   async get<T>(tableName: ETables, filter: any = {}): Promise<T> {
-    const client = this.dbConnection.getClient();
+    const client = this.connection.getClient;
     try {
       const keys = Object.keys(filter);
       const values = keys.map(key => filter[key]);
@@ -155,7 +161,7 @@ export abstract class BaseDBMapper {
    * @return {Promise<T[]>} A promise that resolves with the list of retrieved data.
    */
   async list<T>(tableName: ETables, filter: Record<string, any> = {}): Promise<T[]> {
-    const client = this.dbConnection.getClient();
+    const client = this.connection.getClient;
     try {
       const keys = Object.keys(filter);
       const values = keys.map(key => filter[key]);
@@ -176,7 +182,7 @@ export abstract class BaseDBMapper {
   }
 
   async count(tableName: ETables, filter: Record<string, any> = {}): Promise<number> {
-    const client = this.dbConnection.getClient();
+    const client = this.connection.getClient;
     try {
       const keys = Object.keys(filter);
       const values = keys.map(key => filter[key]);
@@ -199,13 +205,8 @@ export abstract class BaseDBMapper {
 
 @Injectable()
 export class DBMapper extends BaseDBMapper {
-  dbConnection: DBConnection;
-  log: Logger;
-
-  constructor(dbConnection: DBConnection, log: Logger) {
-    super(dbConnection, log);
-    this.dbConnection = dbConnection;
-    this.log = log;
+  constructor(readonly connection: DBConnection, log: Logger) {
+      super(connection.getClient, log);
   }
 
   async raw<T>(query: string, params: Record<string, any> = {}): Promise<T[]> {
@@ -220,7 +221,7 @@ export class DBMapper extends BaseDBMapper {
         return match;
       });
 
-      const res = await this.dbConnection.getClient().query(parameterizedQuery, values);
+      const res = await this.connection.getClient.query(parameterizedQuery, values);
       return res.rows;
     } catch (error) {
       this.log.error(error);
@@ -228,36 +229,4 @@ export class DBMapper extends BaseDBMapper {
     }
   }
 
-  async transaction() {
-    const client = await this.dbConnection.getClient()
-    await client.query('BEGIN');
-    return new TransactionalClient(client, this.log);
-  }
-}
-
-class TransactionalClient extends BaseDBMapper {
-  constructor(dbConnection: DBConnection, log: Logger) {
-    super(dbConnection.getClient(), log);
-  }
-  async commit() {
-    try {
-      await this.dbConnection.getClient().query('COMMIT');
-    } catch (error) {
-      this.log.error(error);
-      throw new DBErrorException();
-    } finally {
-      this.dbConnection.getClient().release();
-    }
-  }
-
-  async rollback() {
-    try {
-      await this.dbConnection.getClient().query('ROLLBACK');
-    } catch (error) {
-      this.log.error(error);
-      throw new DBErrorException();
-    } finally {
-      this.dbConnection.getClient().release();
-    }
-  }
 }

@@ -43,7 +43,7 @@ export class DBConnection implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  getClient(): Client {
+  get getClient(): Client {
     return this.client;
   }
 }
