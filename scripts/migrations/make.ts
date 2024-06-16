@@ -5,14 +5,14 @@ import { DBMigration } from '../../src/services/database/migration';
 (async function bootstrap() {
   try {
     const app = await NestFactory.createApplicationContext(AppModule);
-    const DBMigration = app.get(DBMigration);
+    const migration = app.get(DBMigration);
     const migrationName = process.argv[2];
     if (!migrationName) {
       console.error('Please provide a migration name');
       process.exit(1);
     }
 
-    DBMigration.make(migrationName);
+    migration.make(migrationName);
     await app.close();
   } catch (error) {
     console.error(error);

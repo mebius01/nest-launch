@@ -5,8 +5,8 @@ import { DBMigration } from '../../src/services/database/migration';
 (async function bootstrap() {
   try {
     const app = await NestFactory.createApplicationContext(AppModule);
-    const DBMigration = app.get(DBMigration);
-    await DBMigration.list();
+    const migration = app.get(DBMigration);
+    await migration.list();
     await app.close();
   } catch (error) {
     console.error(error);

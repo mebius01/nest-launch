@@ -2,14 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { DBConnection } from './connection';  // Відповідний шлях до вашого модуля
 import { Logger } from 'nestjs-pino';
 import { DBErrorException } from '../exceptions/exceptions';
+import { ETables } from './enums';
 
-@Injectable()
-export class DBMapper {
-  constructor(
-    private readonly dbConnection: DBConnection,
-    private readonly log: Logger,
-  ) {}
+export abstract class BaseDBMapper {
+  protected dbConnection: DBConnection;
+  protected log: Logger;
 
+  constructor(dbConnection: DBConnection, log: Logger) {
+    this.dbConnection = dbConnection;
+    this.log = log;
+  }
+  
   private isEmpty(data: any): boolean {
     if (Array.isArray(data)) {
       return data.length === 0;
@@ -26,10 +29,10 @@ export class DBMapper {
    * @throws {Error} If the data is empty.
    * @throws {DBErrorException} If there is an error executing the database query.
    */
-  async create<T, R>(tableName: string, data: T | T[]): Promise<R[]> {
+  async create<T, R>(tableName: ETables, data: T | T[]): Promise<R[]> {
     if (this.isEmpty(data)) throw new Error('Cannot insert empty data');
 
-    const client = this.dbConnection.getClient();
+    const client = await this.dbConnection.getClient();
     try {
       const keys = Object.keys(data[0] || data);
       const valuesArray = Array.isArray(data) ? data : [data];
@@ -51,7 +54,16 @@ export class DBMapper {
     }
   }
 
-  async update<T, R>(tableName: string, filter: any = {}, data: T): Promise<R> {
+  /**
+   * Updates a row in the specified table with the given data, based on the provided filter.
+   *
+   * @param {string} tableName - The name of the table to update.
+   * @param {object} [filter={}] - An optional filter object to specify which row(s) to update.
+   * @param {object} data - The data to update the row(s) with.
+   * @return {Promise<object>} A Promise that resolves to the updated row(s) or null if no rows were updated.
+   * @throws {DBErrorException} If an error occurs while updating the row(s).
+   */
+  async update<T, R>(tableName: ETables, filter: any = {}, data: T): Promise<R[]> {
     const client = this.dbConnection.getClient();
     try {
       const keys = Object.keys(data);
@@ -69,13 +81,12 @@ export class DBMapper {
         RETURNING *`;
 
       const res = await client.query(query, [...values, ...filterValues]);
-      return res.rows[0];
+      return res.rows;
     } catch (error) {
       this.log.error(error);
       throw new DBErrorException();
     }
   }
-
 
   /**
    * Deletes records from a table based on a filter condition.
@@ -85,7 +96,7 @@ export class DBMapper {
    * @return {Promise<T[]>} - A promise that resolves to an array of deleted records.
    * @throws {DBErrorException} - If there is an error executing the database query.
    */
-  async delete<T>(tableName: string, filter: any = {}): Promise<T[]> {
+  async delete<T>(tableName: ETables, filter: any = {}): Promise<T[]> {
     const client = this.dbConnection.getClient();
     try {
       const keys = Object.keys(filter);
@@ -107,7 +118,6 @@ export class DBMapper {
     }
   }
 
-
   /**
    * Retrieves data from the database table based on the provided filter.
    *
@@ -115,7 +125,7 @@ export class DBMapper {
    * @param {any} [filter={}] - The filter criteria to apply when fetching data.
    * @return {Promise<T>} A promise that resolves with the retrieved data.
    */
-  async get<T>(tableName: string, filter: any = {}): Promise<T> {
+  async get<T>(tableName: ETables, filter: any = {}): Promise<T> {
     const client = this.dbConnection.getClient();
     try {
       const keys = Object.keys(filter);
@@ -137,7 +147,6 @@ export class DBMapper {
     }
   }
 
-
   /**
    * Retrieves a list of data from the database table based on the provided filter.
    *
@@ -145,8 +154,7 @@ export class DBMapper {
    * @param {any} [filter={}] - The filter criteria to apply when fetching data.
    * @return {Promise<T[]>} A promise that resolves with the list of retrieved data.
    */
-  async list<T>(tableName: string, filter: Record<string, any> = {}): Promise<T[]> {
-    if (this.isEmpty(filter)) throw new Error('Filter cannot be empty');
+  async list<T>(tableName: ETables, filter: Record<string, any> = {}): Promise<T[]> {
     const client = this.dbConnection.getClient();
     try {
       const keys = Object.keys(filter);
@@ -167,28 +175,7 @@ export class DBMapper {
     }
   }
 
-  async raw<T>(query: string, params: Record<string, any> = {}): Promise<T[]> {
-    const client = this.dbConnection.getClient();
-    try {
-      const keys = Object.keys(params);
-      const values = keys.map(key => params[key]);
-      const parameterizedQuery = query.replace(/:([a-zA-Z0-9_]+)/g, (match, p1) => {
-        const index = keys.indexOf(p1);
-        if (index !== -1) {
-          return `$${index + 1}`;
-        }
-        return match;
-      });
-
-      const res = await client.query(parameterizedQuery, values);
-      return res.rows;
-    } catch (error) {
-      this.log.error(error);
-      throw new DBErrorException();
-    }
-  }
-
-  async count(tableName: string, filter: Record<string, any> = {}): Promise<number> {
+  async count(tableName: ETables, filter: Record<string, any> = {}): Promise<number> {
     const client = this.dbConnection.getClient();
     try {
       const keys = Object.keys(filter);
@@ -208,122 +195,69 @@ export class DBMapper {
       throw new DBErrorException();
     }
   }
-
-
 }
 
-// async update(tableName: string, id: any, data: any): Promise<any> {
-//   const client = this.dbConnection.getClient();
-//   try {
-//     const keys = Object.keys(data);
-//     const values = keys.map(key => data[key]);
-//     const query = `
-//       UPDATE ${tableName}
-//       SET ${keys.map((key, i) => `${key} = $${i + 1}`).join(', ')}
-//       WHERE id = $${keys.length + 1}
-//       RETURNING *`;
+@Injectable()
+export class DBMapper extends BaseDBMapper {
+  dbConnection: DBConnection;
+  log: Logger;
 
-//     const res = await client.query(query, [...values, id]);
-//     return res.rows[0];
-//   } catch (error) {
-//     this.log.error(error);
-//     throw new Error('Database error');
-//   }
-// }
+  constructor(dbConnection: DBConnection, log: Logger) {
+    super(dbConnection, log);
+    this.dbConnection = dbConnection;
+    this.log = log;
+  }
 
-// async delete(tableName: string, id: any): Promise<any> {
-//   const client = this.dbConnection.getClient();
-//   try {
-//     const query = `
-//       DELETE FROM ${tableName}
-//       WHERE id = $1
-//       RETURNING *`;
+  async raw<T>(query: string, params: Record<string, any> = {}): Promise<T[]> {
+    try {
+      const keys = Object.keys(params);
+      const values = keys.map(key => params[key]);
+      const parameterizedQuery = query.replace(/:([a-zA-Z0-9_]+)/g, (match, p1) => {
+        const index = keys.indexOf(p1);
+        if (index !== -1) {
+          return `$${index + 1}`;
+        }
+        return match;
+      });
 
-//     const res = await client.query(query, [id]);
-//     return res.rows[0];
-//   } catch (error) {
-//     this.log.error(error);
-//     throw new Error('Database error');
-//   }
-// }
+      const res = await this.dbConnection.getClient().query(parameterizedQuery, values);
+      return res.rows;
+    } catch (error) {
+      this.log.error(error);
+      throw new DBErrorException();
+    }
+  }
 
-// async list(tableName: string, filter: any = {}): Promise<any[]> {
-//   const client = this.dbConnection.getClient();
-//   try {
-//     const keys = Object.keys(filter);
-//     const values = keys.map(key => filter[key]);
-//     const query = `
-//       SELECT * FROM ${tableName}
-//       ${keys.length ? `WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}` : ''}`;
+  async transaction() {
+    const client = await this.dbConnection.getClient()
+    await client.query('BEGIN');
+    return new TransactionalClient(client, this.log);
+  }
+}
 
-//     const res = await client.query(query, values);
-//     return res.rows;
-//   } catch (error) {
-//     this.log.error(error);
-//     throw new Error('Database error');
-//   }
-// }
+class TransactionalClient extends BaseDBMapper {
+  constructor(dbConnection: DBConnection, log: Logger) {
+    super(dbConnection.getClient(), log);
+  }
+  async commit() {
+    try {
+      await this.dbConnection.getClient().query('COMMIT');
+    } catch (error) {
+      this.log.error(error);
+      throw new DBErrorException();
+    } finally {
+      this.dbConnection.getClient().release();
+    }
+  }
 
-// async get(tableName: string, id: any): Promise<any> {
-//   const client = this.dbConnection.getClient();
-//   try {
-//     const query = `
-//       SELECT * FROM ${tableName}
-//       WHERE id = $1`;
-
-//     const res = await client.query(query, [id]);
-//     return res.rows[0];
-//   } catch (error) {
-//     this.log.error(error);
-//     throw new Error('Database error');
-//   }
-// }
-
-// async count(tableName: string, filter: any = {}): Promise<number> {
-//   const client = this.dbConnection.getClient();
-//   try {
-//     const keys = Object.keys(filter);
-//     const values = keys.map(key => filter[key]);
-//     const query = `
-//       SELECT COUNT(*) FROM ${tableName}
-//       ${keys.length ? `WHERE ${keys.map((key, i) => `${key} = $${i + 1}`).join(' AND ')}` : ''}`;
-
-//     const res = await client.query(query, values);
-//     return parseInt(res.rows[0].count, 10);
-//   } catch (error) {
-//     this.log.error(error);
-//     throw new Error('Database error');
-//   }
-// }
-
-// async transaction(operations: any[]): Promise<any> {
-//   const client = this.dbConnection.getClient();
-//   try {
-//     await client.query('BEGIN');
-//     const results = [];
-//     for (const operation of operations) {
-//       const { method, tableName, data, id } = operation;
-//       let result;
-//       switch (method) {
-//         case 'create':
-//           result = await this.create(tableName, data);
-//           break;
-//         case 'update':
-//           result = await this.update(tableName, id, data);
-//           break;
-//         case 'delete':
-//           result = await this.delete(tableName, id);
-//           break;
-//         default:
-//           throw new Error('Unknown method');
-//       }
-//       results.push(result);
-//     }
-//     await client.query('COMMIT');
-//     return results;
-//   } catch (error) {
-//     await client.query('ROLLBACK');
-//     this.log.error(error);
-//     throw new Error('Database transaction error');
-//   }
-// }
+  async rollback() {
+    try {
+      await this.dbConnection.getClient().query('ROLLBACK');
+    } catch (error) {
+      this.log.error(error);
+      throw new DBErrorException();
+    } finally {
+      this.dbConnection.getClient().release();
+    }
+  }
+}
