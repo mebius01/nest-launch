@@ -18,6 +18,10 @@ export class UsersService {
     return await this.dal.get(id);
   }
 
+  async getByEmail(email: string) {
+    return await this.dal.getByEmail(email);
+  }
+
   async update(id: number, body: UpdateUserDto) {
     return await this.dal.update(id, body);
   }

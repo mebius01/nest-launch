@@ -29,6 +29,11 @@ export class UsersController {
     return this.usersService.get(+id);
   }
 
+  @Get('email/:email')
+  getByEmail(@Param('email') email: string) {
+    return this.usersService.getByEmail(email);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);

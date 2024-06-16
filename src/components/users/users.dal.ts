@@ -13,17 +13,12 @@ export class UsersDal {
   ) { }
   
   async create(payload: CreateUserDto) {
-    // const trx = await this.mapper.transaction()
-    // try {
-    //   const [user] = await trx.create<CreateUserDto, TUser>(ETables.Users, payload);
-    //   console.log('[34musers.dal.ts:[33m19[35m(user)[37m', user);
-    //   const [project] = await trx.create(ETables.Projects, {name: 'Test Project name'});
-    //   console.log('[34musers.dal.ts:[33m21[35m(project)[37m', project);
-    //   // await trx.commit()
-    // } catch (error) {
-    //   await trx.rollback()
-    //   throw error
-    // }
+    try {
+      const [data] = await this.mapper.create<CreateUserDto, TUser>(ETables.Users, payload);
+      return data
+    } catch (error) {
+      throw error
+    }
   }
 
   async list() {
@@ -38,6 +33,17 @@ export class UsersDal {
   async get(user_id: number) {
     try {
       const data = await this.mapper.get<TUser>(ETables.Users, { id: user_id });
+      return data
+    } catch (error) {
+      this.logger.error(error);
+      throw new DBErrorException();
+    }
+  }
+
+  async getByEmail(email: string) {
+    const sql = `select u.* from ${ETables.Users} u where u.email = :email`
+    try {
+      const data = await this.mapper.raw<TUser>(sql, { email });
       return data
     } catch (error) {
       this.logger.error(error);
