@@ -10,18 +10,18 @@ async function bootstrap() {
   if (process.env.NODE_ENV == 'production') app.set('trust proxy', 1);
 
   const config = app.get(ConfigService);
-  const PORT = config.get('port') || 5000;
+  const PORT = config.get('port') || 3001;
   const PREFIX = config.get('prefix');
 
   app.setGlobalPrefix(PREFIX);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  // security
-  app.enableCors({
-    origin: process.env.FRONTEND_DOMAIN,
-    credentials: true,
-  });
-  app.use(helmet());
+  // // security
+  // app.enableCors({
+  //   origin: process.env.FRONTEND_DOMAIN,
+  //   credentials: true,
+  // });
+  // app.use(helmet());
 
   await app.listen(PORT, () =>
     console.info('Server started', {

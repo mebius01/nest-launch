@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AuthModule } from './components/auth/auth.module';
 import { UsersModule } from './components/users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './configuration/main.config';
+import { LoggerModule } from 'nestjs-pino';
+import { DBConnection } from './services/database/connection';
+import { DBMigration } from './services/database/migration';
+import { join } from 'path';
+import { DatabaseModule } from './services/database/database.module';
 
 @Module({
   imports: [
@@ -12,10 +15,20 @@ import configuration from './configuration/main.config';
       load: [configuration],
       cache: true,
     }),
-    AuthModule,
+    LoggerModule.forRoot({ ...configuration().pino }),
     UsersModule,
+    DatabaseModule,
   ],
-  controllers: [AppController],
-  providers: [],
+  controllers: [],
+  providers: [
+    {
+      provide: DBMigration,
+      useFactory: (DBConnection: DBConnection) => {
+        const migrationsDir = join(__dirname, 'database', 'migrations');
+        return new DBMigration(DBConnection, migrationsDir);
+      },
+      inject: [DBConnection],
+    },
+  ],
 })
 export class AppModule {}
