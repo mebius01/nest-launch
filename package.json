@@ -14,6 +14,7 @@
     "migrate:up": "ts-node scripts/migrations/up.ts",
     "migrate:down": "ts-node scripts/migrations/down.ts",
     "migrate:rollback": "ts-node scripts/migrations/rollback.ts",
+    "seed:up": "ts-node scripts/seed/seed.ts",
     "migrate": "ts-node src/database/migrate.ts",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

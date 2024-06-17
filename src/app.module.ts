@@ -1,3 +1,4 @@
+import { DBMapper } from './services/database/mapper';
 import { Module } from '@nestjs/common';
 import { UsersModule } from './components/users/users.module';
 import { ConfigModule } from '@nestjs/config';
@@ -7,6 +8,7 @@ import { DBConnection } from './services/database/connection';
 import { DBMigration } from './services/database/migration';
 import { join } from 'path';
 import { DatabaseModule } from './services/database/database.module';
+import { DBInitializer } from './services/database/initializer';
 
 @Module({
   imports: [
@@ -28,6 +30,14 @@ import { DatabaseModule } from './services/database/database.module';
         return new DBMigration(DBConnection, migrationsDir);
       },
       inject: [DBConnection],
+    },
+    {
+      provide: DBInitializer,
+      useFactory: (dbMapper: DBMapper) => {
+        const seedsDir = join(__dirname, 'database', 'seeds');
+        return new DBInitializer(dbMapper, seedsDir);
+      },
+      inject: [DBMapper],
     },
   ],
 })
