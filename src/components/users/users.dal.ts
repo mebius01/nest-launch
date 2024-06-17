@@ -13,9 +13,8 @@ export class UsersDal {
   ) { }
   
   async create(payload: CreateUserDto) {
-    await this.mapper.transaction();
     try {
-      const [data] = await this.mapper.create<CreateUserDto, TUser>(ETables.Users, payload);
+      const [data] = await this.mapper.upsert<CreateUserDto, TUser>(ETables.Users, payload, ['email'], false);
       return data
     } catch (error) {
       throw error
