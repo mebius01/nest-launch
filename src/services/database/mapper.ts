@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-inferrable-types */
 /* eslint-disable max-len */
 import { Injectable } from '@nestjs/common';
 import { DBConnection } from './connection';
@@ -314,7 +313,7 @@ export class DBMapper {
     return res.rows;
   }
 
-  async upsert<T, R>(tableName: ETables, data: T | T[], conflictColumns: string[], ignore: boolean = false): Promise<R[]> {
+  async upsert<T, R>(tableName: ETables, data: T | T[], conflictColumns: string[], ignore = false): Promise<R[]> {
     const { sql, values } = this.queryBuilder.upsert(tableName, data, conflictColumns, ignore);
     const client = await this.connection.getClient;
     const res = await client.query(sql, values);
