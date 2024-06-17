@@ -1,12 +1,13 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../../src/app.module';
-import { DBInitializer } from '../../src/services/database/initializer';
+import { AppModule } from '../src/app.module';
+import { DBMigration } from '../src/services/database/migration';
 
 (async function bootstrap() {
   try {
     const app = await NestFactory.createApplicationContext(AppModule);
-    const init = app.get(DBInitializer);
-    await init.seed();
+    const migration = app.get(DBMigration);
+    const migrationName = process.argv[2];
+    await migration.down(migrationName);
     await app.close();
   } catch (error) {
     console.error(error);

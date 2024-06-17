@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '../../src/app.module';
-import { DBMigration } from '../../src/services/database/migration';
+import { AppModule } from '../src/app.module';
+import { DBMigration } from '../src/services/database/migration';
 
 (async function bootstrap() {
   try {

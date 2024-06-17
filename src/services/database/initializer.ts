@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { join } from 'path';
 import * as fs from 'fs';
 import * as path from 'path';
 import { DBMapper } from './mapper';
+import { Logger } from 'nestjs-pino';
 
 @Injectable()
 export class DBInitializer {
   constructor(
+    private readonly log: Logger,
     private readonly mapper: DBMapper,
     private readonly seedsDir: string,
   ) { }
@@ -16,20 +17,19 @@ export class DBInitializer {
     const environmentDir = path.join(this.seedsDir, environment);
 
     if (!fs.existsSync(environmentDir)) {
-      console.error(`Seeds directory for environment "${environment}" not found.`);
+      this.log.error(`Seeds directory ${environmentDir} does not exist`);
       return;
     }
 
-    const seedFiles = fs.readdirSync(environmentDir);
-    console.log('[34minitializer.ts:[33m25[35m(seedFiles)[37m', seedFiles);
+    const filePath = path.join(environmentDir, 'init');
 
-    for (const file of seedFiles) {
-      const filePath = path.join(environmentDir, file);
-      console.log('[34minitializer.ts:[33m29[35m(filePath)[37m', filePath);
-    //   const seedModule = require(filePath);
-    //   if (seedModule && seedModule.seed) {
-    //     await seedModule.seed(this.dbConnection);
-    //   }
+    try {
+      const seedModule = await import(filePath);
+      if (seedModule && seedModule.seed) {
+        await seedModule.seed(this.mapper);
+      }
+    } catch (error) {
+      this.log.error(error);
     }
   }
 }

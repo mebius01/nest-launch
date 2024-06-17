@@ -9,6 +9,7 @@ import { DBMigration } from './services/database/migration';
 import { join } from 'path';
 import { DatabaseModule } from './services/database/database.module';
 import { DBInitializer } from './services/database/initializer';
+import { Logger } from 'nestjs-pino';
 
 @Module({
   imports: [
@@ -33,9 +34,9 @@ import { DBInitializer } from './services/database/initializer';
     },
     {
       provide: DBInitializer,
-      useFactory: (dbMapper: DBMapper) => {
+      useFactory: (dbMapper: DBMapper, logger: Logger) => {
         const seedsDir = join(__dirname, 'database', 'seeds');
-        return new DBInitializer(dbMapper, seedsDir);
+        return new DBInitializer(logger, dbMapper, seedsDir);
       },
       inject: [DBMapper],
     },
