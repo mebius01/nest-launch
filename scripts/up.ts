@@ -9,6 +9,7 @@ import { DBMigration } from '../src/services/database/migration';
     const migrationName = process.argv[2];
     await migration.up(migrationName);
     await app.close();
+    process.exit(0);
   } catch (error) {
     console.error(error);
     process.exit(1);

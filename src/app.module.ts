@@ -1,7 +1,7 @@
 import { DBMapper } from './services/database/mapper';
 import { Module } from '@nestjs/common';
 import { UsersModule } from './components/users/users.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule} from '@nestjs/config';
 import configuration from './configuration/main.config';
 import { LoggerModule } from 'nestjs-pino';
 import { DBConnection } from './services/database/connection';

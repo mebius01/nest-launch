@@ -14,6 +14,7 @@ import { DBMigration } from '../src/services/database/migration';
 
     migration.make(migrationName);
     await app.close();
+    process.exit(0);
   } catch (error) {
     console.error(error);
     process.exit(1);

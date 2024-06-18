@@ -8,6 +8,7 @@ import { DBInitializer } from '../src/services/database/initializer';
     const init = app.get(DBInitializer);
     await init.seed();
     await app.close();
+    process.exit(0);
   } catch (error) {
     console.error(error);
     process.exit(1);
