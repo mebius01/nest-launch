@@ -11,6 +11,7 @@ import { DatabaseModule } from './services/database/database.module';
 import { DBInitializer } from './services/database/initializer';
 import { RedisModule } from './services/redis/redis.module';
 import { Logger } from 'nestjs-pino';
+import { AuthModule } from './components/auth/auth.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { Logger } from 'nestjs-pino';
     UsersModule,
     DatabaseModule,
     RedisModule,
+    AuthModule
   ],
   controllers: [],
   providers: [
