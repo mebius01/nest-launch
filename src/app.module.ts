@@ -1,7 +1,7 @@
 import { DBMapper } from './services/database/mapper';
 import { Module } from '@nestjs/common';
 import { UsersModule } from './components/users/users.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from './configuration/main.config';
 import { LoggerModule } from 'nestjs-pino';
 import { DBConnection } from './services/database/connection';
@@ -9,6 +9,7 @@ import { DBMigration } from './services/database/migration';
 import { join } from 'path';
 import { DatabaseModule } from './services/database/database.module';
 import { DBInitializer } from './services/database/initializer';
+import { RedisModule } from './services/redis/redis.module';
 import { Logger } from 'nestjs-pino';
 
 @Module({
@@ -21,6 +22,7 @@ import { Logger } from 'nestjs-pino';
     LoggerModule.forRoot({ ...configuration().pino }),
     UsersModule,
     DatabaseModule,
+    RedisModule,
   ],
   controllers: [],
   providers: [
@@ -40,6 +42,6 @@ import { Logger } from 'nestjs-pino';
       },
       inject: [DBMapper],
     },
-  ],
+  ]
 })
 export class AppModule {}
