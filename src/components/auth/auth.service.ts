@@ -30,28 +30,87 @@ export class  AuthLocalService {
     return data
   }
 
-  async login(body: AuthDto):Promise<string> {
+  async login(body: AuthDto):Promise<{accessToken: string, refreshToken: string}> {
     const jwtConfig = this.configService.get('jwt');
-    const { password_hash, ...user } = await this.authDal.getUserByEmail(body.email);
-    if (!user) {
+    const getUser = await this.authDal.getUserByEmail(body.email);
+
+    if (!getUser) {
       throw new UnauthorizedException('Invalid credentials');
     }
+    const { password_hash, ...user } = getUser;
 
     const passwordMatches = await bcrypt.compare(body.password, password_hash);
     if (!passwordMatches) {
       throw new UnauthorizedException('Invalid credentials');
     }
- 
 
-    const token: TToken = {
+    const accessToken: TToken = {
       user_id: user.user_id,
-      token: jwt.sign({ id: user.user_id }, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn }),
+      token: jwt.sign({ id: user.user_id }, jwtConfig.secret, { expiresIn: jwtConfig.accessExpiresIn }),
       expires_at: new Date(Date.now() + 3600000),
     }
-    await this.authDal.setToken(token);
+
+    const refreshToken: TToken = {
+      user_id: user.user_id,
+      token: jwt.sign({ user_id: user.user_id }, jwtConfig.secret, { expiresIn: jwtConfig.refreshExpiresIn }),
+      expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+    }
+    await this.authDal.setTokens(accessToken, refreshToken);
     const redisKey = `session:${user.user_id}:${uuidv4()}`
     await this.redis.set(redisKey, user);
 
-    return token.token;
+    return {
+      accessToken: accessToken.token,
+      refreshToken: refreshToken.token
+    };
+  }
+
+  async refresh(token: string): Promise<{ accessToken: string, refreshToken: string; }> {
+    const jwtConfig = this.configService.get('jwt');
+    const oldRefreshToken = await this.authDal.getRefreshTokenByToken(token);
+    if (!oldRefreshToken) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const payload = jwt.verify(oldRefreshToken.token, jwtConfig.secret) as jwt.JwtPayload;
+    const { user_id } = payload;
+    const user = await this.authDal.getUserById(user_id);
+
+    if (!user) { 
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const accessToken: TToken = {
+      user_id: user.user_id,
+      token: jwt.sign({ id: user.user_id }, jwtConfig.secret, { expiresIn: jwtConfig.accessExpiresIn }),
+      expires_at: new Date(Date.now() + 3600000),
+    };
+
+    const refreshToken: TToken = {
+      user_id: user.user_id,
+      token: jwt.sign({ user_id: user.user_id }, jwtConfig.secret, { expiresIn: jwtConfig.refreshExpiresIn }),
+      expires_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+    };
+    await this.authDal.setTokens(accessToken, refreshToken);
+    const redisKey = `session:${user.user_id}:${uuidv4()}`;
+    await this.redis.set(redisKey, user);
+
+    return {
+      accessToken: accessToken.token,
+      refreshToken: refreshToken.token
+    };
+  }
+
+  async logout(user_id: number): Promise<void> {
+    await this.authDal.delTokens(user_id);
+    await this.redis.del(`session:${user_id}:*`);
+  }
+
+  async logoutAll(): Promise<void> {
+    await this.authDal.delTokens();
+    const keys = await this.redis.list('session:*');
+    for (const key of keys) {
+      await this.redis.del(key);
+    }
   }
 }

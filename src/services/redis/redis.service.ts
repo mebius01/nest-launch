@@ -29,6 +29,20 @@ export class RedisService {
     }
   }
 
+  async list(key?: string): Promise<string[]> {
+    try {
+      let values
+      if (!key) {
+        values = await this.redis.keys('*');
+      }
+      values = await this.redis.keys(key);
+      return values
+    } catch (error) {
+      this.log.error(error);
+      throw new RedisErrorException();
+    }
+  }
+
   async set(key: string, value: any): Promise<string> {
     try {
       const valueString = JSON.stringify(value);
