@@ -12,7 +12,7 @@ export class DBConnection implements OnModuleInit, OnModuleDestroy {
     private readonly config: ConfigService,
     private readonly log: Logger,
   ) {
-    this.client = new Client(config.get('pg'));
+    this.client = new Client(this.config.get('pg'));
   }
 
   async onModuleInit() {

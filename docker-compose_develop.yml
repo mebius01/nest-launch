@@ -6,14 +6,14 @@ services:
     container_name: pg_nest_launch
     restart: always
     environment: 
-      PG_HOST: ${PG_HOST}
-      PG_DATABASE: ${PG_DATABASE}
-      PG_USER: ${PG_USER}
-      PG_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - ${PG_PORT}:5432
+      - ${POSTGRES_PORT}:5432
     volumes:
-      - pg-nest-launch:/var/lib/postgresql/data
+      - pg-nest-launch:/var/lib/postgresql/pg_nest_launch
 
   redis-nest-launch:
     image: redis:latest
