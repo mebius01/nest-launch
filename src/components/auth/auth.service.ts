@@ -1,15 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 import { AuthDto } from './auth.dto';
-import { AuthDal } from './auth.dal';
+import {  AuthLocalDal } from './auth.dal';
 import { TUser } from '../users/users.type';
-import { UsersDal } from '../users/users.dal';
+import { TToken } from './auth.type';
+import { RedisService } from '../../services/redis/redis.service';
+
 
 @Injectable()
-export class AuthService {
+export class  AuthLocalService {
   constructor(
-    private readonly authDal: AuthDal
+    private readonly configService: ConfigService,
+    private readonly authDal: AuthLocalDal,
+    private readonly redis: RedisService
   ) { }
 
   async create(body: AuthDto): Promise<TUser> {
@@ -24,40 +30,28 @@ export class AuthService {
     return data
   }
 
-  async login(body: AuthDto) {
-    const user = await this.authDal.getUserByEmail(body.email);
+  async login(body: AuthDto):Promise<string> {
+    const jwtConfig = this.configService.get('jwt');
+    const { password_hash, ...user } = await this.authDal.getUserByEmail(body.email);
     if (!user) {
-      throw new Error('User not found');
+      throw new UnauthorizedException('Invalid credentials');
     }
 
-    const passwordMatches = await bcrypt.compare(body.password, user.password_hash);
+    const passwordMatches = await bcrypt.compare(body.password, password_hash);
     if (!passwordMatches) {
-      throw new Error('Invalid credentials');
+      throw new UnauthorizedException('Invalid credentials');
     }
+ 
 
-    const token = jwt.sign({ id: user.user_id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    // await this.tokenService.create(user.id, token, new Date(Date.now() + 3600000));
+    const token: TToken = {
+      user_id: user.user_id,
+      token: jwt.sign({ id: user.user_id }, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn }),
+      expires_at: new Date(Date.now() + 3600000),
+    }
+    await this.authDal.setToken(token);
+    const redisKey = `session:${user.user_id}:${uuidv4()}`
+    await this.redis.set(redisKey, user);
 
-    // const redisClient = this.redisService.getClient();
-    // await redisClient.set(`user:${user.id}`, JSON.stringify(user));
-
-    // return token;
+    return token.token;
   }
-
-  // async logout(userId: number): Promise<void> {
-  //   await this.tokenService.deleteByUserId(userId);
-
-  //   const redisClient = this.redisService.getClient();
-  //   await redisClient.del(`user:${userId}`);
-  // }
-
-  // async logoutAll(): Promise<void> {
-  //   await this.tokenService.deleteAll();
-
-  //   const redisClient = this.redisService.getClient();
-  //   const keys = await redisClient.keys('user:*');
-  //   for (const key of keys) {
-  //     await redisClient.del(key);
-  //   }
-  // }
 }

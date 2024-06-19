@@ -47,7 +47,8 @@
     "pino-pretty": "^10.3.0",
     "redis": "^4.6.14",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
