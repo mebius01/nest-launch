@@ -1,7 +1,7 @@
 import { DBMapper } from './services/database/mapper';
 import { Module } from '@nestjs/common';
 import { UsersModule } from './components/users/users.module';
-import { ConfigModule} from '@nestjs/config';
+import { ConfigModule, ConfigService} from '@nestjs/config';
 import configuration from './configuration/main.config';
 import { LoggerModule } from 'nestjs-pino';
 import { DBConnection } from './services/database/connection';
@@ -12,6 +12,8 @@ import { DBInitializer } from './services/database/initializer';
 import { RedisModule } from './services/redis/redis.module';
 import { Logger } from 'nestjs-pino';
 import { AuthModule } from './components/auth/auth.module';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [

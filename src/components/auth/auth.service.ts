@@ -46,7 +46,7 @@ export class  AuthLocalService {
 
     const accessToken: TToken = {
       user_id: user.user_id,
-      token: jwt.sign({ id: user.user_id }, jwtConfig.secret, { expiresIn: jwtConfig.accessExpiresIn }),
+      token: jwt.sign({ user_id: user.user_id }, jwtConfig.secret, { expiresIn: jwtConfig.accessExpiresIn }),
       expires_at: new Date(Date.now() + 3600000),
     }
 
@@ -103,14 +103,11 @@ export class  AuthLocalService {
 
   async logout(user_id: number): Promise<void> {
     await this.authDal.delTokens(user_id);
-    await this.redis.del(`session:${user_id}:*`);
+    await this.redis.delByPattern(`session:${user_id}:*`);
   }
 
   async logoutAll(): Promise<void> {
     await this.authDal.delTokens();
-    const keys = await this.redis.list('session:*');
-    for (const key of keys) {
-      await this.redis.del(key);
-    }
+    await this.redis.delByPattern('session:*');
   }
 }

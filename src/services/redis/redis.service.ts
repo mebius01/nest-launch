@@ -29,13 +29,13 @@ export class RedisService {
     }
   }
 
-  async list(key?: string): Promise<string[]> {
+  async keys(pattern?: string): Promise<string[]> {
     try {
       let values
-      if (!key) {
+      if (!pattern) {
         values = await this.redis.keys('*');
       }
-      values = await this.redis.keys(key);
+      values = await this.redis.keys(pattern);
       return values
     } catch (error) {
       this.log.error(error);
@@ -56,6 +56,19 @@ export class RedisService {
   async del(key: string): Promise<number> {
     try {
       return await this.redis.del(key);
+    } catch (error) {
+      this.log.error(error);
+      throw new RedisErrorException();
+    }
+  }
+
+  async delByPattern(pattern: string): Promise<number> {
+    try {
+      const keys = await this.redis.keys(pattern);
+      if (keys.length > 0) {
+        return await this.redis.del(...keys);
+      }
+      return 0;
     } catch (error) {
       this.log.error(error);
       throw new RedisErrorException();

@@ -1,10 +1,7 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
   Delete,
   Req,
   UseGuards,
@@ -13,8 +10,9 @@ import {
 } from '@nestjs/common';
 import {  AuthLocalService } from './auth.service';
 import { AuthDto } from './auth.dto';
+import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
 
-@Controller('auth')
+@Controller('auth/local')
 export class AuthController {
   constructor(private readonly authService:  AuthLocalService) { }
 
@@ -33,18 +31,18 @@ export class AuthController {
     return this.authService.refresh(body.refreshToken);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('logout')
-  async logout(@Req() req) {
+  logout(@Req() req: any) {
     const userId = req.user.user_id;
     return this.authService.logout(userId);
   }
 
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('logout-all')
-  async logoutAll() {
+  logoutAll() {
     return this.authService.logoutAll();
   }
 }
