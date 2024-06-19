@@ -4,7 +4,7 @@ import { DBInitializer } from '../src/services/database/initializer';
 
 (async function bootstrap() {
   try {
-    const app = await NestFactory.createApplicationContext(AppModule);
+    const app = await NestFactory.createApplicationContext(AppModule, { logger: false, });
     const init = app.get(DBInitializer);
     await init.seed();
     await app.close();
