@@ -14,6 +14,7 @@ import { Logger } from 'nestjs-pino';
 import { AuthModule } from './components/auth/auth.module';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { TokenModule } from './services/token/token.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { APP_GUARD } from '@nestjs/core';
     UsersModule,
     DatabaseModule,
     RedisModule,
+    TokenModule,
     AuthModule
   ],
   controllers: [],
