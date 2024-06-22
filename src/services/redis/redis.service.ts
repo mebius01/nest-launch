@@ -43,6 +43,26 @@ export class RedisService {
     }
   }
 
+  async setSession(key: string, value: any, expires: number): Promise<string> {
+    try {
+      const valueString = JSON.stringify(value);
+      return await this.redis.set(key, valueString, 'EX', expires);
+    } catch (error) {
+      this.log.error(error);
+      throw new RedisErrorException();
+    }
+  }
+
+  async expire(key: string, expires: number): Promise<number> {
+    try {
+      return await this.redis.expire(key, expires);
+    } catch (error) {
+      this.log.error(error);
+      throw new RedisErrorException();
+    }
+  }
+
+
   async set(key: string, value: any): Promise<string> {
     try {
       const valueString = JSON.stringify(value);

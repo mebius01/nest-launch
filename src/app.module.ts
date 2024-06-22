@@ -12,7 +12,7 @@ import { DBInitializer } from './services/database/initializer';
 import { RedisModule } from './services/redis/redis.module';
 import { Logger } from 'nestjs-pino';
 import { AuthModule } from './components/auth/auth.module';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { TokenGuard } from './services/token/token.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { TokenModule } from './services/token/token.module';
 

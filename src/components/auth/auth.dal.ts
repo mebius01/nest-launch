@@ -40,34 +40,34 @@ export class  AuthLocalDal {
     }
   }
 
-  async setTokens(accessToken: TToken, refreshToken: TToken): Promise<void> {
-    await this.mapper.transaction();
-    try {
-      await this.mapper.create(ETables.AccessTokens, accessToken);
-      await this.mapper.create(ETables.RefreshTokens, refreshToken);
-      await this.mapper.commit();
-    } catch (error) {
-      await this.mapper.rollback();
-      throw error
-    }
-  }
+  // async setTokens(accessToken: TToken, refreshToken: TToken): Promise<void> {
+  //   await this.mapper.transaction();
+  //   try {
+  //     await this.mapper.create(ETables.AccessTokens, accessToken);
+  //     await this.mapper.create(ETables.RefreshTokens, refreshToken);
+  //     await this.mapper.commit();
+  //   } catch (error) {
+  //     await this.mapper.rollback();
+  //     throw error
+  //   }
+  // }
 
-  async delTokens(user_id?: number): Promise<void> {
-    await this.mapper.transaction();
-    try {
-      if (user_id) {
-        await this.mapper.delete(ETables.AccessTokens, { user_id });
-        await this.mapper.delete(ETables.RefreshTokens, { user_id });
-      } else {
-        await this.mapper.delete(ETables.AccessTokens);
-        await this.mapper.delete(ETables.RefreshTokens);
-      }
-      await this.mapper.commit();
-    } catch (error) {
-      await this.mapper.rollback();
-      throw error
-    }
-  }
+  // async delTokens(user_id?: number): Promise<void> {
+  //   await this.mapper.transaction();
+  //   try {
+  //     if (user_id) {
+  //       await this.mapper.delete(ETables.AccessTokens, { user_id });
+  //       await this.mapper.delete(ETables.RefreshTokens, { user_id });
+  //     } else {
+  //       await this.mapper.delete(ETables.AccessTokens);
+  //       await this.mapper.delete(ETables.RefreshTokens);
+  //     }
+  //     await this.mapper.commit();
+  //   } catch (error) {
+  //     await this.mapper.rollback();
+  //     throw error
+  //   }
+  // }
 
   async getRefreshTokenByToken(token: string): Promise<TToken> {
     try {

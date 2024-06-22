@@ -6,9 +6,11 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
+import { TokenGuard } from '../../services/token/token.guard';
 
 @Controller('users')
 export class UsersController {
@@ -19,6 +21,7 @@ export class UsersController {
     return this.usersService.create(body);
   }
 
+  @UseGuards(TokenGuard)
   @Get()
   list() {
     return this.usersService.list();

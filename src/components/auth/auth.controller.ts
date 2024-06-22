@@ -10,11 +10,15 @@ import {
 } from '@nestjs/common';
 import {  AuthLocalService } from './auth.service';
 import { AuthDto } from './auth.dto';
-import { JwtAuthGuard } from '../../guards/jwt-auth.guard';
+import { TokenGuard } from '../../services/token/token.guard';
+import { TokenService } from '../../services/token/token.service';
 
 @Controller('auth/local')
 export class AuthController {
-  constructor(private readonly authService:  AuthLocalService) { }
+  constructor(
+    private readonly authService: AuthLocalService,
+    private readonly tokenService: TokenService
+  ) { }
 
   @Post('sign-up')
   create(@Body() body: AuthDto) {
@@ -26,23 +30,19 @@ export class AuthController {
     return this.authService.login(body);
   }
 
-  @Post('refresh')
-  async refresh(@Body() body: { refreshToken: string; }) {
-    return this.authService.refresh(body.refreshToken);
-  }
-
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(TokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('logout')
   logout(@Req() req: any) {
-    const userId = req.user.user_id;
-    return this.authService.logout(userId);
+    console.log('[34mauth.controller.ts:[33m37[35m(req)[37m', req);
+    // const userId = req.user.user_id;
+    // return this.authService.logout(userId);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(TokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('logout-all')
   logoutAll() {
-    return this.authService.logoutAll();
+    // return this.authService.logoutAll();
   }
 }
