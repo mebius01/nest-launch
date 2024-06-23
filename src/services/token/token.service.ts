@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { RedisService } from "../redis/redis.service";
 import { TUser } from '../../components/users/users.type';
 import * as jwt from 'jsonwebtoken';
-import { TTokenResponse } from './token.type';
+import { TJwtTokenResponse } from './token.type';
 
 export enum TTL {
   TEN_MINUTES = 600,     // 10 * 60
@@ -23,7 +23,7 @@ export class TokenService {
   private createSession(user: TUser): { key: string, value: TUser, ttl: number } {
     const sessionId = uuidv4();
     const data = {
-      key: `session:${user.user_id}:${sessionId}`,
+      key: this.redisService.generateKey('session', user.user_id, sessionId),
       value: user,
       ttl: TTL.ONE_DAY
     };
@@ -98,7 +98,7 @@ export class JwtService {
     }
   }
 
-  async createTokens(user: TUser): Promise<TTokenResponse> {
+  async createTokens(user: TUser): Promise<TJwtTokenResponse> {
     const accessToken = this.generateAccessToken(user);
     const refreshToken = this.generateRefreshToken(user);
     await this.redisService.set(`refresh:${user.user_id}:${refreshToken}`, user, this.refreshTokenTtl);
@@ -108,7 +108,7 @@ export class JwtService {
     };
   }
 
-  async refreshToken(refreshToken: string, user_id: number): Promise<TTokenResponse | null> {
+  async refreshToken(refreshToken: string, user_id: number): Promise<TJwtTokenResponse | null> {
     try {
       const user = await this.redisService.get(`refresh:${user_id}:${refreshToken}`);
 
@@ -124,7 +124,7 @@ export class JwtService {
       const newAccessToken = this.generateAccessToken(user);
       const newRefreshToken = this.generateRefreshToken(user);
       await this.redisService.del(`refresh:${user_id}:${refreshToken}`);
-      await this.redisService.set(`refresh:${newRefreshToken}`, decoded, this.refreshTokenTtl);
+      await this.redisService.set(`refresh:${user_id}:${newRefreshToken}`, decoded, this.refreshTokenTtl);
       return {
         access_token: newAccessToken,
         refresh_token: newRefreshToken,

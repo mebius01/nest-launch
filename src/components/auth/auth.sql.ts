@@ -1,6 +1,6 @@
 export const getAuthUserByEmailSql = `
-select u.*, la.password_hash
+select u.*, al.password_hash
 from users u
-left join local_auth la on u.user_id = la.user_id
+left join auth_local al on u.user_id = al.user_id
 where u.email = :email
 `

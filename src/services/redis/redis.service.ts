@@ -10,6 +10,10 @@ export class RedisService {
     private readonly log: Logger,
   ) { }
 
+  generateKey(prefix: string, userId: number, token: string) { 
+    return `${prefix}:${userId}:${token}`
+  }
+
   async ping() {
     try {
       return await this.redis.ping();
