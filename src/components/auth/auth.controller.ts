@@ -33,16 +33,23 @@ export class AuthController {
   @UseGuards(TokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('logout')
-  logout(@Req() req: any) {
-    console.log('[34mauth.controller.ts:[33m37[35m(req)[37m', req);
-    // const userId = req.user.user_id;
-    // return this.authService.logout(userId);
+  logout(@Req() req: any) { 
+    const accessToken = req.headers.authorization?.split(' ')[1];
+    this.tokenService.logoutForSession(accessToken);
+  }
+  
+  @UseGuards(TokenGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('logout-user')
+  logoutForUser(@Req() req: any) { 
+    const userId = req.user.user_id;
+    this.tokenService.logoutForUser(userId);
   }
 
   @UseGuards(TokenGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete('logout-all')
   logoutAll() {
-    // return this.authService.logoutAll();
+    this.tokenService.logoutAll();
   }
 }

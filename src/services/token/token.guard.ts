@@ -3,13 +3,20 @@ import { TokenService } from './token.service';
 
 @Injectable()
 export class TokenGuard implements CanActivate {
-  constructor(
-    private readonly tokenService: TokenService,
-  ) { }
+  constructor(private readonly tokenService: TokenService) { }
+
+  private extractTokenFromHeader(request: any): string | null {
+    const authHeader = request.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.split(' ')[1];
+    }
+    return null;
+  }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.headers.authorization?.split(' ')[1];
+    const token = this.extractTokenFromHeader(request);
+
     if (!token) {
       return false;
     }

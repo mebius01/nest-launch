@@ -31,6 +31,9 @@ export default () => ({
   redis: {
     url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
   },
+  jwt: {
+    secret: process.env.JWT_SECRET,
+  },
   pg: {
     host: process.env.POSTGRES_HOST,
     port: process.env.POSTGRES_PORT,
@@ -38,5 +41,4 @@ export default () => ({
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
   },
-  ex: parseInt(process.env.TOKEN_EXPIRATION, 10),
 });
