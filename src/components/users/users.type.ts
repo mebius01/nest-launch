@@ -1,5 +1,5 @@
 export type TUser = {
-  id?: number;
+  user_id?: number;
   email: string;
-  activated: boolean;
+  user_name: string;
 };

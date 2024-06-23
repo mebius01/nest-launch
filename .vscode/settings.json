@@ -1,6 +1,8 @@
 {
   "cSpell.words": [
     "resave",
-    "unlog"
+    "unlog",
+    "upsert",
+    "uuidv"
   ]
 }

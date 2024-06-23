@@ -1,4 +1,7 @@
 export enum ETables {
   Users = 'users',
-  Projects = 'projects',
+  LocalAuth = 'local_auth',
+  AccessTokens = 'access_tokens',
+  RefreshTokens = 'refresh_tokens',
+  SocialAccounts = 'social_accounts',
 }

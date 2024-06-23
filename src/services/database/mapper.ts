@@ -179,8 +179,32 @@ export class QueryBuilder {
 
     return { sql, values };
   }
-  
 
+  upsert(tableName: ETables, data: any | any[], conflictColumns: string[], ignore: boolean): { sql: string, values: any[]; } {
+    if (this.isEmpty(data)) throw new Error('Cannot insert empty data');
+    const keys = Object.keys(data[0] || data);
+    const valuesArray = Array.isArray(data) ? data : [data];
+    const values = valuesArray.flatMap((d: any) => keys.map(k => d[k]));
+    const valuePlaceholders = valuesArray
+      .map((_, rowIndex) => `(${keys.map((_, colIndex) => `$${rowIndex * keys.length + colIndex + 1}`).join(', ')})`)
+      .join(', ');
+
+    let onConflictClause = `ON CONFLICT (${conflictColumns.join(', ')})`;
+    if (ignore) {
+      onConflictClause += ' DO NOTHING';
+    } else {
+      const updateClause = keys.map(key => `${key} = EXCLUDED.${key}`).join(', ');
+      onConflictClause += ` DO UPDATE SET ${updateClause}`;
+    }
+
+    const sql = `
+      INSERT INTO ${tableName} (${keys.join(', ')})
+      VALUES ${valuePlaceholders}
+      ${onConflictClause}
+      RETURNING *`;
+
+    return { sql, values };
+  }
 }
 
 
@@ -286,6 +310,13 @@ export class DBMapper {
   async raw<T>(query: string, params: Record<string, any> = {}): Promise<T[]> {
     const { sql, values } = this.queryBuilder.raw(query, params);
     const res = await this.push(sql, values);
+    return res.rows;
+  }
+
+  async upsert<T, R>(tableName: ETables, data: T | T[], conflictColumns: string[], ignore = false): Promise<R[]> {
+    const { sql, values } = this.queryBuilder.upsert(tableName, data, conflictColumns, ignore);
+    const client = await this.connection.getClient;
+    const res = await client.query(sql, values);
     return res.rows;
   }
 

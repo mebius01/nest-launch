@@ -5,3 +5,15 @@ export class DBErrorException extends HttpException {
     super('DB Error', HttpStatus.SERVICE_UNAVAILABLE);
   }
 }
+
+export class RedisErrorException extends HttpException {
+  constructor() {
+    super('Redis Error', HttpStatus.SERVICE_UNAVAILABLE);
+  }
+}
+
+export class EmailErrorException extends HttpException {
+  constructor() {
+    super('Email Error', HttpStatus.SERVICE_UNAVAILABLE);
+  }
+}
