@@ -1,8 +1,12 @@
 {
   "cSpell.words": [
+    "BYTEA",
+    "INET",
+    "MACADDR",
     "resave",
     "unlog",
     "upsert",
-    "uuidv"
+    "uuidv",
+    "VARBIT"
   ]
 }
