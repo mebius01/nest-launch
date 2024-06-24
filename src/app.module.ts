@@ -2,7 +2,7 @@ import { DBMapper } from './services/database/mapper';
 import { Module } from '@nestjs/common';
 import { UsersModule } from './components/users/users.module';
 import { ConfigModule, ConfigService} from '@nestjs/config';
-import configuration from './configuration/main.config';
+import configuration from './configuration/configuration';
 import { LoggerModule } from 'nestjs-pino';
 import { DBConnection } from './services/database/connection';
 import { DBMigration } from './services/database/migration';
@@ -15,6 +15,7 @@ import { AuthModule } from './components/auth/auth.module';
 import { TokenGuard } from './services/token/token.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { TokenModule } from './services/token/token.module';
+import { MailModule } from './services/mail/mail.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TokenModule } from './services/token/token.module';
     DatabaseModule,
     RedisModule,
     TokenModule,
+    MailModule,
     AuthModule
   ],
   controllers: [],

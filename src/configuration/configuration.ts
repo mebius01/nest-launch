@@ -34,6 +34,10 @@ export default () => ({
   jwt: {
     secret: process.env.JWT_SECRET,
   },
+  mail: {
+    token: process.env.MAILTRAP_TOKEN,
+    sender: process.env.MAILTRAP_SENDER,
+  },
   pg: {
     host: process.env.POSTGRES_HOST,
     port: process.env.POSTGRES_PORT,

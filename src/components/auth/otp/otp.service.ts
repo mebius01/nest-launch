@@ -4,6 +4,7 @@ import { TokenService, TTL } from '../../../services/token/token.service';
 import { randomBytes } from 'crypto';
 import { TTokenResponse } from 'src/services/token/token.type';
 import { AuthOtpDal } from './otp.dal';
+import { MailService } from '../../../services/mail/mail.service';
 
 @Injectable()
 export class AuthOtpService {
@@ -11,7 +12,8 @@ export class AuthOtpService {
   constructor(
     private readonly dal: AuthOtpDal,
     private readonly redis: RedisService,
-    private readonly tokenService: TokenService
+    private readonly tokenService: TokenService,
+    private readonly mailService: MailService
   ) { }
 
   generateOtp(): string {
@@ -22,15 +24,14 @@ export class AuthOtpService {
     const user = await this.dal.getUserByEmail(email);
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException();
     }
 
     const otpCode = this.generateOtp();
     const redisKey = this.redis.generateKey('otp', user.user_id, otpCode)
     await this.redis.set(redisKey, user, TTL.FIFTEEN_MINUTES);
 
-    //! send data to mailService
-    console.log('send data to mailService', otpCode);
+    await this.mailService.otp(user, otpCode)
   }
 
   async verifyOtp(otp_code: string): Promise<TTokenResponse> { 

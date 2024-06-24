@@ -14,18 +14,6 @@ export class  AuthLocalService {
     private readonly tokenService: TokenService,
   ) { }
 
-  // //! create -> Users.create
-  // async create(body: AuthLocalDto): Promise<TUser> {
-  //   const user: TUser = {
-  //     email: body.email,
-  //     user_name: body.email.split('@')[0],
-  //   }
-  //   const salt = await bcrypt.genSalt(10);
-  //   const password_hash = await bcrypt.hash(body.password, salt);
-  //   const data = await this.authDal.create(user, password_hash);
-  //   return data
-  // }
-
   async login(body: AuthLocalDto): Promise<TTokenResponse> {
     const getUser = await this.authDal.getUserByEmail(body.email);
 

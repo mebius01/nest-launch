@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TUser } from './users.type';
-import { CreateUserDto, UpdateUserDto } from './users.dto';
+import { UpdateUserDto } from './users.dto';
 import { DBMapper } from '../../services/database/mapper';
 import { ETables } from '../../services/database/enums';
 
