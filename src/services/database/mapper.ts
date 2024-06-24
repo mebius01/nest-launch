@@ -216,6 +216,14 @@ export class DBMapper {
     private readonly queryBuilder: QueryBuilder
   ) { }
 
+  /**
+   * Executes an SQL query with the provided SQL string and values, and returns the result.
+   *
+   * @param {string} sql - The SQL string to execute.
+   * @param {any[]} values - An array of values to be used in the SQL query.
+   * @return {Promise<any>} A promise that resolves to the result of the SQL query.
+   * @throws {DBErrorException} If there is an error executing the SQL query.
+   */
   private async push(sql: string, values: any[]): Promise<any> {
     const client = await this.connection.getClient;
     try {
@@ -271,48 +279,107 @@ export class DBMapper {
     }
   }
 
+  /**
+   * Creates new records in the specified table.
+   *
+   * @param {ETables} tableName - The name of the table to insert data into.
+   * @param {T | T[]} data - The data to be inserted into the table. Can be a single object or an array of objects.
+   * @return {Promise<R[]>} - A promise that resolves to an array of the inserted records.
+   */
   async create<T, R>(tableName: ETables, data: T | T[]): Promise<R[]> {
     const { sql, values } = this.queryBuilder.create(tableName, data);
     const res = await this.push(sql, values);
     return res.rows;
   }
 
+  /**
+   * Updates records in the specified table based on the provided filter and data.
+   *
+   * @param {ETables} tableName - The name of the table to update.
+   * @param {any} filter - The filter criteria to apply to the update operation.
+   * @param {T} data - The new data to set in the updated records.
+   * @return {Promise<R[]>} - A promise that resolves to an array of the updated records.
+   */
   async update<T, R>(tableName: ETables, filter: any = {}, data: T): Promise<R[]> {
     const { sql, values } = this.queryBuilder.update(tableName, filter, data);
     const res = await this.push(sql, values);
     return res.rows;
   }
 
+  /**
+   * Deletes records from the specified table based on the provided filter.
+   *
+   * @param {ETables} tableName - The name of the table to delete from.
+   * @param {any} filter - The filter criteria to apply to the delete operation.
+   * @return {Promise<T[]>} A promise that resolves to an array of the deleted records.
+   */
   async delete<T>(tableName: ETables, filter: any = {}): Promise<T[]> {
     const { sql, values } = this.queryBuilder.delete(tableName, filter);
     const res = await this.push(sql, values);
     return res.rows;
   }
 
+  /**
+   * Retrieves a single record from the specified table based on the provided filter.
+   *
+   * @param {ETables} tableName - The name of the table to fetch data from.
+   * @param {any} [filter={}] - The filter criteria to apply to the query.
+   * @return {Promise<T>} A promise that resolves to the retrieved record.
+   */
   async get<T>(tableName: ETables, filter: any = {}): Promise<T> {
     const { sql, values } = this.queryBuilder.get(tableName, filter);
     const res = await this.push(sql, values);
     return res.rows[0];
   }
 
+  /**
+   * Retrieves a list of records from the specified table based on the provided filter.
+   *
+   * @param {ETables} tableName - The name of the table to fetch data from.
+   * @param {Record<string, any>} [filter={}] - The filter criteria to apply to the query.
+   * @return {Promise<T[]>} A promise that resolves to an array of the retrieved records.
+   */
   async list<T>(tableName: ETables, filter: Record<string, any> = {}): Promise<T[]> {
     const { sql, values } = this.queryBuilder.list(tableName, filter);
     const res = await this.push(sql, values);
     return res.rows;
   }
 
+  /**
+   * Counts the number of records in the specified table that match the provided filter criteria.
+   *
+   * @param {ETables} tableName - The name of the table to count records from.
+   * @param {Record<string, any>} [filter={}] - The filter criteria to apply to the count operation. Defaults to an empty object.
+   * @return {Promise<number>} - A promise that resolves to the number of records that match the filter criteria.
+   */
   async count(tableName: ETables, filter: Record<string, any> = {}): Promise<number> {
     const { sql, values } = this.queryBuilder.count(tableName, filter);
     const res = await this.push(sql, values);
     return parseInt(res.rows[0].count, 10)
   }
 
+  /**
+   * Executes a raw SQL query with parameters and returns the result as an array of objects.
+   *
+   * @param {string} query - The raw SQL query to execute.
+   * @param {Record<string, any>} [params={}] - The parameters to be substituted in the query. Defaults to an empty object.
+   * @return {Promise<T[]>} A promise that resolves to an array of objects representing the result of the query.
+   */
   async raw<T>(query: string, params: Record<string, any> = {}): Promise<T[]> {
     const { sql, values } = this.queryBuilder.raw(query, params);
     const res = await this.push(sql, values);
     return res.rows;
   }
 
+  /**
+   * Inserts or updates records in the specified table based on the provided data and conflict columns.
+   *
+   * @param {ETables} tableName - The name of the table to upsert data into.
+   * @param {T | T[]} data - The data to be inserted or updated. Can be a single record or an array of records.
+   * @param {string[]} conflictColumns - The columns to check for conflicts when upserting.
+   * @param {boolean} [ignore=false] - Whether to ignore conflicts and not update existing records.
+   * @return {Promise<R[]>} A promise that resolves to an array of the updated or inserted records.
+   */
   async upsert<T, R>(tableName: ETables, data: T | T[], conflictColumns: string[], ignore = false): Promise<R[]> {
     const { sql, values } = this.queryBuilder.upsert(tableName, data, conflictColumns, ignore);
     const client = await this.connection.getClient;

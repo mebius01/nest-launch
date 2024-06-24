@@ -1,5 +1,4 @@
-import { Injectable, Logger, Optional } from '@nestjs/common';
-import { DBErrorException } from '../../services/exceptions/exceptions';
+import { Injectable } from '@nestjs/common';
 import { TUser } from './users.type';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
 import { DBMapper } from '../../services/database/mapper';
@@ -30,14 +29,6 @@ export class UsersDal {
     try {
       const data = await this.mapper.get<TUser>(ETables.Users, { id: user_id });
       return data
-    } catch (error) {
-      throw error
-    }
-  }
-
-  async getByEmail(email: string) {
-    try {
-      return await this.mapper.get<TUser>(ETables.Users, { email });
     } catch (error) {
       throw error
     }

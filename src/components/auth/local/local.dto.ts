@@ -10,9 +10,3 @@ export class AuthLocalDto {
   @MinLength(4)
   password: string;
 }
-
-export class AuthOtpDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-}

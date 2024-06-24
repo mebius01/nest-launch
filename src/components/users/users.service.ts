@@ -7,7 +7,10 @@ export class UsersService {
   constructor(private readonly dal: UsersDal) { }
   
   async create(body: CreateUserDto) {
-    return await this.dal.create(body);
+    const data = await this.dal.create(body);
+    //! send data to mailService
+    console.log('send data to mailService', data);
+    return data
   }
 
   async list() {
@@ -16,10 +19,6 @@ export class UsersService {
 
   async get(id: number) {
     return await this.dal.get(id);
-  }
-
-  async getByEmail(email: string) {
-    return await this.dal.getByEmail(email);
   }
 
   async update(id: number, body: UpdateUserDto) {
