@@ -8,9 +8,9 @@ import { ETables } from '../../services/database/enums';
 export class UsersDal {
   constructor(private readonly mapper: DBMapper) { }
   
-  async create(payload: CreateUserDto) {
+  async create(payload: TUser) {
     try {
-      const [data] = await this.mapper.upsert<CreateUserDto, TUser>(ETables.Users, payload, ['email'], false);
+      const [data] = await this.mapper.upsert<TUser, TUser>(ETables.Users, payload, ['email'], false);
       return data
     } catch (error) {
       throw error

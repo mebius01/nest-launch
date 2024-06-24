@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
 import { UsersDal } from './users.dal';
+import { TUser } from './users.type';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly dal: UsersDal) { }
   
   async create(body: CreateUserDto) {
-    const data = await this.dal.create(body);
+    const payload: TUser = {
+      email: body.email,
+      user_name: body.name,
+    }
+    const data = await this.dal.create(payload);
     //! send data to mailService
     console.log('send data to mailService', data);
     return data

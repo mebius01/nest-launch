@@ -34,7 +34,8 @@ export class AuthOtpService {
   }
 
   async verifyOtp(otp_code: string): Promise<TTokenResponse> { 
-    const user = await this.redis.get(`otp:*:${otp_code}`);
+    const [key] = await this.redis.keys(`otp:*:${otp_code}`);
+    const user = await this.redis.get(key);
     if (!user) {
       throw new UnauthorizedException();
     }
