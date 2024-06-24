@@ -28,11 +28,11 @@ export class AuthOtpService {
       throw new UnauthorizedException();
     }
 
-    const otpCode = this.generateOtp();
-    const redisKey = this.redis.generateKey('otp', user.user_id, otpCode)
+    const code = this.generateOtp();
+    const redisKey = this.redis.generateKey('otp', user.user_id, code)
     await this.redis.set(redisKey, user, TTL.FIFTEEN_MINUTES);
 
-    await this.queueService.add('sendOtp', { user, otpCode })
+    await this.queueService.add('sendOtp', { user, code })
   }
 
   async verifyOtp(otp_code: string): Promise<TTokenResponse> { 
