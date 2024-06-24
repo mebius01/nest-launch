@@ -23,7 +23,10 @@ export class MailService {
 
   formatFromToMsg(toEmail: string) {
     return {
-      from: { email: this.configService.get('mail').sender, name: 'Nest Launch' },
+      from: {
+        email: this.configService.get('mail').sender,
+        name: 'Nest Launch'
+      },
       to: [{ email: toEmail }],
     };
   }
