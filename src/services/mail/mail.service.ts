@@ -3,8 +3,6 @@ import { MailtrapClient } from "mailtrap";
 import { Logger } from "nestjs-pino";
 import { EmailErrorException } from "../exceptions/exceptions";
 import { ConfigService } from "@nestjs/config";
-import { join } from 'path';
-import * as fs from 'fs';
 import { TUser } from "src/components/users/users.type";
 import { otpTemplate, registrationTemplate } from "./mail.html";
 
@@ -23,14 +21,14 @@ export class MailService {
     private readonly configService: ConfigService
   ) {}
 
-  private formatFromToMsg(toEmail: string) {
+  formatFromToMsg(toEmail: string) {
     return {
       from: { email: this.configService.get('mail').sender, name: 'Nest Launch' },
       to: [{ email: toEmail }],
     };
   }
 
-  private async send(msg: TMsg) {
+  async send(msg: TMsg) {
     if (process.env.NODE_ENV === 'development') {
       this.log.warn(msg);
       return;

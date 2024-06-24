@@ -16,6 +16,7 @@ import { TokenGuard } from './services/token/token.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { TokenModule } from './services/token/token.module';
 import { MailModule } from './services/mail/mail.module';
+import { QueueModule } from './services/queue/queue.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { MailModule } from './services/mail/mail.module';
     RedisModule,
     TokenModule,
     MailModule,
+    QueueModule,
     AuthModule
   ],
   controllers: [],

@@ -5,6 +5,7 @@ import { randomBytes } from 'crypto';
 import { TTokenResponse } from 'src/services/token/token.type';
 import { AuthOtpDal } from './otp.dal';
 import { MailService } from '../../../services/mail/mail.service';
+import { QueueService } from '../../../services/queue/queue.service';
 
 @Injectable()
 export class AuthOtpService {
@@ -13,7 +14,7 @@ export class AuthOtpService {
     private readonly dal: AuthOtpDal,
     private readonly redis: RedisService,
     private readonly tokenService: TokenService,
-    private readonly mailService: MailService
+    private readonly queueService: QueueService
   ) { }
 
   generateOtp(): string {
@@ -31,7 +32,7 @@ export class AuthOtpService {
     const redisKey = this.redis.generateKey('otp', user.user_id, otpCode)
     await this.redis.set(redisKey, user, TTL.FIFTEEN_MINUTES);
 
-    await this.mailService.otp(user, otpCode)
+    await this.queueService.add('sendOtp', { user, otpCode })
   }
 
   async verifyOtp(otp_code: string): Promise<TTokenResponse> { 

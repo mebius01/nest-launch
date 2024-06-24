@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
 import { UsersDal } from './users.dal';
 import { TUser } from './users.type';
-import { MailService } from '../../services/mail/mail.service';
+import { QueueService } from '../../services/queue/queue.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly dal: UsersDal,
-    private readonly mailService: MailService
+    private readonly queueService: QueueService
   ) { }
   
   async create(body: CreateUserDto) {
@@ -16,9 +16,9 @@ export class UsersService {
       email: body.email,
       user_name: body.name,
     }
-    const data = await this.dal.create(payload);
-    await this.mailService.registration(data);
-    return data
+    const user = await this.dal.create(payload);
+    await this.queueService.add('sendRegistration', { user })
+    return user
   }
 
   async list() {
