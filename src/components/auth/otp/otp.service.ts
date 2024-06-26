@@ -3,15 +3,14 @@ import { RedisService } from '../../../services/redis/redis.service';
 import { TokenService, TTL } from '../../../services/token/token.service';
 import { randomBytes } from 'crypto';
 import { TTokenResponse } from 'src/services/token/token.type';
-import { AuthOtpDal } from './otp.dal';
-import { MailService } from '../../../services/mail/mail.service';
 import { QueueService } from '../../../services/queue/queue.service';
+import { UsersDal } from '../../../components/users/users.dal';
 
 @Injectable()
 export class AuthOtpService {
   private readonly length = 6;
   constructor(
-    private readonly dal: AuthOtpDal,
+    private readonly usersDal: UsersDal,
     private readonly redis: RedisService,
     private readonly tokenService: TokenService,
     private readonly queueService: QueueService
@@ -22,7 +21,7 @@ export class AuthOtpService {
   }
 
   async createOtp(email: string): Promise<void> {
-    const user = await this.dal.getUserByEmail(email);
+    const user = await this.usersDal.getUserByEmail(email);
 
     if (!user) {
       throw new UnauthorizedException();

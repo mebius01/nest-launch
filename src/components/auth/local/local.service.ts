@@ -1,8 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { UsersDal } from '../../../components/users/users.dal';
 import { AuthLocalDto } from './local.dto';
-import {  AuthLocalDal } from './local.dal';
-import { TUser } from '../../users/users.type';
 import { TokenService} from '../../../services/token/token.service';
 import { TTokenResponse } from '../../../services/token/token.type';
 
@@ -10,12 +9,12 @@ import { TTokenResponse } from '../../../services/token/token.type';
 @Injectable()
 export class  AuthLocalService {
   constructor(
-    private readonly authDal: AuthLocalDal,
+    private readonly userDal: UsersDal,
     private readonly tokenService: TokenService,
   ) { }
 
   async login(body: AuthLocalDto): Promise<TTokenResponse> {
-    const getUser = await this.authDal.getUserByEmail(body.email);
+    const getUser = await this.userDal.getUserByEmail(body.email);
 
     if (!getUser) {
       throw new UnauthorizedException('Invalid credentials');

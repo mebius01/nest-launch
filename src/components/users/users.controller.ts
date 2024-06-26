@@ -11,6 +11,7 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
 import { TokenGuard } from '../../services/token/token.guard';
+import { ERoles, Roles, RolesGuard } from '../../services/roles/roles.service';
 
 @Controller('users')
 export class UsersController {
@@ -40,7 +41,8 @@ export class UsersController {
     return this.usersService.update(+id, updateUserDto);
   }
 
-  @UseGuards(TokenGuard)
+  @UseGuards(TokenGuard, RolesGuard)
+  @Roles(ERoles.Admin)
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.usersService.delete(+id);

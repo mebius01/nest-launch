@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { AuthLocalController } from "./local.controller";
 import { AuthLocalService } from "./local.service";
-import { AuthLocalDal } from "./local.dal";
+import { UsersDal } from "../../../components/users/users.dal";
 
 @Module({
   controllers: [AuthLocalController],
-  providers: [AuthLocalService, AuthLocalDal],
+  providers: [AuthLocalService, UsersDal],
 })
 export class AuthLocalModule { }

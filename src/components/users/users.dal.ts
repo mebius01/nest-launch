@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TUser } from './users.type';
+import { TAuthUser, TUser } from './users.type';
 import { UpdateUserDto } from './users.dto';
 import { DBMapper } from '../../services/database/mapper';
 import { ETables } from '../../services/database/enums';
@@ -7,6 +7,23 @@ import { ETables } from '../../services/database/enums';
 @Injectable()
 export class UsersDal {
   constructor(private readonly mapper: DBMapper) { }
+
+  async getUserByEmail(email: string): Promise<TAuthUser> {
+    const sql = `select
+  u.*,
+  al.password_hash,
+  r.role_name
+from users u 
+left join auth_local al on al.user_id = u.user_id 
+join roles r on r.role_id = u.role_id 
+where u.email = :email`;
+    try {
+      const [data] = await this.mapper.raw<TAuthUser>(sql, { email });
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
   
   async create(payload: TUser) {
     try {
