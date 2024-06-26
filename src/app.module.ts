@@ -1,7 +1,7 @@
 import { DBMapper } from './services/database/mapper';
 import { Module } from '@nestjs/common';
 import { UsersModule } from './components/users/users.module';
-import { ConfigModule, ConfigService} from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import configuration from './configuration/configuration';
 import { LoggerModule } from 'nestjs-pino';
 import { DBConnection } from './services/database/connection';
@@ -12,9 +12,7 @@ import { DBInitializer } from './services/database/initializer';
 import { RedisModule } from './services/redis/redis.module';
 import { Logger } from 'nestjs-pino';
 import { AuthModule } from './components/auth/auth.module';
-import { TokenGuard } from './services/token/token.guard';
-import { APP_GUARD } from '@nestjs/core';
-import { TokenModule } from './services/token/token.module';
+import { TokenModule } from './services/authorization/token/token.module';
 import { MailModule } from './services/mail/mail.module';
 import { QueueModule } from './services/queue/queue.module';
 
@@ -26,13 +24,13 @@ import { QueueModule } from './services/queue/queue.module';
       cache: true,
     }),
     LoggerModule.forRoot({ ...configuration().pino }),
-    UsersModule,
     DatabaseModule,
     RedisModule,
     TokenModule,
     MailModule,
     QueueModule,
-    AuthModule
+    AuthModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [

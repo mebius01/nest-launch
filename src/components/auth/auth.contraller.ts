@@ -6,8 +6,8 @@ import {
   HttpStatus,
   HttpCode,
 } from '@nestjs/common';
-import { TokenGuard } from '../../services/token/token.guard';
-import { TokenService } from '../../services/token/token.service';
+import { TokenGuard } from '../../services/authorization/token/token.guard';
+import { TokenService } from '../../services/authorization/token/token.service';
 
 @Controller('auth')
 export class AuthController {

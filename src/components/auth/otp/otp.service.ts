@@ -1,10 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { RedisService } from '../../../services/redis/redis.service';
-import { TokenService, TTL } from '../../../services/token/token.service';
+import { TokenService } from '../../../services/authorization/token/token.service';
 import { randomBytes } from 'crypto';
-import { TTokenResponse } from 'src/services/token/token.type';
+import { TTokenResponse } from 'src/services/authorization/type';
 import { QueueService } from '../../../services/queue/queue.service';
 import { UsersDal } from '../../../components/users/users.dal';
+import { TTL } from '../../../services/authorization/enum';
 
 @Injectable()
 export class AuthOtpService {

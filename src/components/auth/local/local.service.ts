@@ -2,8 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UsersDal } from '../../../components/users/users.dal';
 import { AuthLocalDto } from './local.dto';
-import { TokenService} from '../../../services/token/token.service';
-import { TTokenResponse } from '../../../services/token/token.type';
+import { TokenService} from '../../../services/authorization/token/token.service';
+import { TTokenResponse } from '../../../services/authorization/type';
 
 
 @Injectable()

@@ -1,64 +1,10 @@
-import { ConfigService } from '@nestjs/config';
 import { Injectable } from "@nestjs/common";
-import { v4 as uuidv4 } from 'uuid';
-import { RedisService } from "../redis/redis.service";
-import { TUser } from '../../components/users/users.type';
+import { ConfigService } from "@nestjs/config";
 import * as jwt from 'jsonwebtoken';
-import { TJwtTokenResponse } from './token.type';
-
-export enum TTL {
-  TEN_MINUTES = 600,     // 10 * 60
-  FIFTEEN_MINUTES = 900, // 15 * 60
-  ONE_DAY = 86400,       // 24 * 60 * 60
-  SEVEN_DAYS = 604800,   // 7 * 24 * 60 * 60
-}
-
-@Injectable()
-export class TokenService {
-  constructor(
-    private readonly redisService: RedisService,
-    private readonly configService: ConfigService
-  ) { }
-
-  private createSession(user: TUser): { key: string, value: TUser, ttl: number } {
-    const sessionId = uuidv4();
-    const data = {
-      key: this.redisService.generateKey('session', user.user_id, sessionId),
-      value: user,
-      ttl: TTL.ONE_DAY
-    };
-    return data;
-  }
-
-  async create(user: TUser): Promise<string> {
-    const session = this.createSession(user);
-    const {key, value, ttl} = session;
-    await this.redisService.set(key, value, ttl);
-    return session.key;
-  }
-
-  async verify(accessToken: string): Promise<TUser | null> {
-    const user = await this.redisService.get(accessToken);
-    if (user) {
-      await this.redisService.expire(accessToken, TTL.ONE_DAY);
-      return user;
-    }
-    return null;
-  }
-
-  async logoutForSession(accessToken: string): Promise<void> {
-    await this.redisService.del(accessToken);
-  }
-
-  async logoutForUser(user_id: number): Promise<void> {
-    await this.redisService.delByPattern(`session:${user_id}:*`);
-  }
-
-  async logoutAll(): Promise<void> {
-    await this.redisService.delByPattern('session:*:*');
-  }
-
-}
+import { TUser } from "../../../components/users/users.type";
+import { RedisService } from "../../../services/redis/redis.service";
+import { TTL } from "../enum";
+import { TJwtTokenResponse } from "../type";
 
 @Injectable()
 export class JwtService {
@@ -68,13 +14,13 @@ export class JwtService {
   constructor(
     private readonly configService: ConfigService,
     private readonly redisService: RedisService
-  ) { 
+  ) {
     this.jwtSecret = this.configService.get('jwt').secret;
-    this.accessTokenTtl = TTL.FIFTEEN_MINUTES
-    this.refreshTokenTtl = TTL.SEVEN_DAYS
+    this.accessTokenTtl = TTL.FIFTEEN_MINUTES;
+    this.refreshTokenTtl = TTL.SEVEN_DAYS;
   }
 
-  private generateToken(payload:any, ttl: number): string {
+  private generateToken(payload: any, ttl: number): string {
     return jwt.sign(payload, this.jwtSecret, { expiresIn: ttl });
   }
 

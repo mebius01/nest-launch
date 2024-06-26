@@ -10,8 +10,9 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
-import { TokenGuard } from '../../services/token/token.guard';
-import { ERoles, Roles, RolesGuard } from '../../services/roles/roles.service';
+import { TokenGuard } from '../../services/authorization/token/token.guard';
+import { Roles, RolesGuard } from '../../services/authorization/roles/roles.service';
+import { ERoles } from '../../services/authorization/enum';
 
 @Controller('users')
 export class UsersController {
