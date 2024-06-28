@@ -3,12 +3,15 @@ import { CreateUserDto, UpdateUserDto } from './users.dto';
 import { UsersDal } from './users.dal';
 import { TUser } from './users.type';
 import { QueueService } from '../../services/queue/queue.service';
+import { PubSubService } from '../../services/redis/pubsub.service';
+import { ENotificationChannels } from 'src/services/notification/enum';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly dal: UsersDal,
-    private readonly queueService: QueueService
+    private readonly queueService: QueueService,
+    private readonly pubSebService: PubSubService
   ) { }
   
   async create(body: CreateUserDto) {
@@ -17,7 +20,7 @@ export class UsersService {
       user_name: body.name,
     }
     const user = await this.dal.create(payload);
-    await this.queueService.add('sendRegistration', { user })
+    await this.pubSebService.publish(ENotificationChannels.USER_REGISTRATION, user);
     return user
   }
 

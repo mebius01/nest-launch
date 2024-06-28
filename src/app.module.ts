@@ -15,7 +15,7 @@ import { AuthModule } from './components/auth/auth.module';
 import { TokenModule } from './services/authorization/token/token.module';
 import { MailModule } from './services/mail/mail.module';
 import { QueueModule } from './services/queue/queue.module';
-import { PubSubModule } from './components/pubsub/pubsub.module';
+import { NotificationModule } from './services/notification/notification.module';
 
 @Module({
   imports: [
@@ -32,7 +32,7 @@ import { PubSubModule } from './components/pubsub/pubsub.module';
     QueueModule,
     AuthModule,
     UsersModule,
-    PubSubModule
+    NotificationModule
   ],
   controllers: [],
   providers: [

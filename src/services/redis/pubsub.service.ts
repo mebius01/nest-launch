@@ -18,7 +18,6 @@ export class PubSubService {
     this.messageHandlers = new Map();
 
     this.subscriber.on('message', (channel, message) => {
-      this.log.warn(`Received message from ${channel}: ${message}`);
       const handler = this.messageHandlers.get(channel);
       if (handler) {
         handler(message);
