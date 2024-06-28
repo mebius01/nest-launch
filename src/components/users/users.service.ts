@@ -10,7 +10,6 @@ import { ENotificationChannels } from 'src/services/notification/enum';
 export class UsersService {
   constructor(
     private readonly dal: UsersDal,
-    private readonly queueService: QueueService,
     private readonly pubSebService: PubSubService
   ) { }
   
@@ -20,6 +19,7 @@ export class UsersService {
       user_name: body.name,
     }
     const user = await this.dal.create(payload);
+    // Send Notification
     await this.pubSebService.publish(ENotificationChannels.USER_REGISTRATION, user);
     return user
   }
