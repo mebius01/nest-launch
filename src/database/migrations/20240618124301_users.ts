@@ -8,8 +8,10 @@ export const up = async (client: Client) => {
     user_id SERIAL PRIMARY KEY,
     user_name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
+    role_id INTEGER REFERENCES roles(role_id) ON DELETE CASCADE NOT NULL DEFAULT 2,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT unique_user_email UNIQUE (email)
     );
   `);
 };

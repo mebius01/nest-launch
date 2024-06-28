@@ -16,12 +16,12 @@ async function bootstrap() {
   app.setGlobalPrefix(PREFIX);
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-  // // security
+  // security
   // app.enableCors({
   //   origin: process.env.FRONTEND_DOMAIN,
   //   credentials: true,
   // });
-  // app.use(helmet());
+  app.use(helmet());
 
   await app.listen(PORT, () =>
     console.info('Server started', {

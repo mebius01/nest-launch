@@ -29,10 +29,17 @@ export default () => ({
     },
   },
   redis: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD,
     url: `redis://:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`,
   },
   jwt: {
     secret: process.env.JWT_SECRET,
+  },
+  mail: {
+    token: process.env.MAILTRAP_TOKEN,
+    sender: process.env.MAILTRAP_SENDER,
   },
   pg: {
     host: process.env.POSTGRES_HOST,
