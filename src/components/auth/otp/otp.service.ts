@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { RedisService } from '../../../services/redis/redis.service';
 import { TokenService } from '../../../services/authorization/token/token.service';
 import { randomBytes } from 'crypto';
-import { TTokenResponse } from 'src/services/authorization/type';
+import { TTokenResponse } from '../../../services/authorization/type';
 import { QueueService } from '../../../services/queue/queue.service';
 import { UsersDal } from '../../../components/users/users.dal';
 import { TTL } from '../../../services/authorization/enum';

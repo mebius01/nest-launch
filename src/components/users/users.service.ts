@@ -2,9 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto, UpdateUserDto } from './users.dto';
 import { UsersDal } from './users.dal';
 import { TUser } from './users.type';
-import { QueueService } from '../../services/queue/queue.service';
 import { PubSubService } from '../../services/redis/pubsub.service';
-import { ENotificationChannels } from 'src/services/notification/enum';
+import { ENotificationChannels } from '../../services/notification/enum';
 
 @Injectable()
 export class UsersService {
