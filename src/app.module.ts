@@ -16,6 +16,7 @@ import { TokenModule } from './services/authorization/token/token.module';
 import { MailModule } from './services/mail/mail.module';
 import { QueueModule } from './services/queue/queue.module';
 import { NotificationModule } from './services/notification/notification.module';
+import { TasksModule } from './services/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -32,7 +33,8 @@ import { NotificationModule } from './services/notification/notification.module'
     QueueModule,
     AuthModule,
     UsersModule,
-    NotificationModule
+    NotificationModule,
+    TasksModule
   ],
   controllers: [],
   providers: [
