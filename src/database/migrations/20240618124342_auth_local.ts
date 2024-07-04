@@ -13,5 +13,5 @@ export const up = async (client: Client) => {
 };
 
 export const down = async (client: Client) => {
-  await client.query(`DROP TABLE ${TABLE_NAME}`);
+  await client.query(`DROP TABLE ${TABLE_NAME} CASCADE;`);
 };
