@@ -1,7 +1,5 @@
 import { PG, PINO_MODE_CONFIG, REDIS } from "./export";
 
-console.log(PG, REDIS);
-
 export default () => ({
   prefix: process.env.PREFIX,
   port: process.env.PORT,
